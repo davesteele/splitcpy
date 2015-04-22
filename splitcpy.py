@@ -6,6 +6,13 @@ import re
 from multiprocessing import Process, Queue
 import subprocess
 
+import pexpect
+import getpass
+import os
+import shutil
+import uuid
+import time
+import tempfile
 
 def parse_net_spec(spec):
     """Parse user@host:path into user, host, path"""
@@ -19,6 +26,7 @@ def parse_net_spec(spec):
 def is_net_spec(spec):
     """Is the path spec of the form user@host:path?"""
     return parse_net_spec(spec)[0] is not None
+
 
 def parse_args():
     """Return an argparse args object"""
@@ -41,6 +49,14 @@ def parse_args():
                 metavar='n,i,l',
                 help="Generate file interleave of 'l' bytes for the 'i'th\
                       slice out of 'n'(internal use only)",
+            )
+
+    parser.add_argument('-p',
+                metavar='port',
+                dest='port',
+                type=int,
+                default=22,
+                help='ssh port to use (if not the default)',
             )
 
     args = parser.parse_args()
@@ -98,40 +114,105 @@ def output_split(srcfile, num_slices, slice, bytes, dst):
         for pkt in slice_iter(src, num_slices, slice, bytes):
             dst.write(pkt)
 
-def dl_slice(src_spec, num_slices, slice, bytes, queue):
+def make_fifo():
+    fifo_path = os.path.join(tempfile.mkdtemp(), uuid.uuid4().__str__())
+    os.mkfifo(fifo_path)
+    return fifo_path
+
+def del_fifo(path):
+    dir = '/'.join(path.split('/')[0:-1])
+    shutil.rmtree(dir)
+
+def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
     """Call a remote interleave slice of a file to download"""
-    src_file = parse_net_spec(src_spec)[2]
+    user, host, src_file = parse_net_spec(src_spec)
 
-    cmd = "./splitcpy.py %s -s %d,%d,%d" % (src_file, num_slices, slice, bytes)
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    p = fifo_path = None
 
-    while True:
-        buf = p.stdout.read(bytes)
-        if not buf:
-            break
-        queue.put(buf)
+    try:
+        fifo_path = make_fifo()
+
+        spltcmd = "splitcpy.py %s -s %d,%d,%d" % (src_file, num_slices, slice, bytes)
+        sshcmd = "ssh -p %d %s@%s %s >%s" % (port, user, host, spltcmd, fifo_path)
+
+        if pw is not None:
+            sshcmd = "SSHPASS=%s sshpass -e %s" % (pw, sshcmd)
+
+        p = subprocess.Popen(sshcmd, shell=True, stdout=subprocess.PIPE,
+                                                 stderr=subprocess.PIPE,
+                                                 stdin=subprocess.PIPE)
+
+        fp = open(fifo_path, 'rb')
+
+        while True:
+            buf = fp.read(bytes)
+
+            if not buf:
+                break
+
+            queue.put(buf)
+
+    finally:
+        if p and p.poll() is None:
+            p.kill()
+
+        if fifo_path:
+            del_fifo(fifo_path)
+
 
     queue.put(None)
 
 
-def dl_file(src, dest, num_slices, bytes):
+def dl_file(src, dest, num_slices, bytes, pw, port):
     """Perform a parallel download of a file"""
-    qs = [Queue(10) for x in range(num_slices)]
-    procs = [Process(target=dl_slice, args=(src, num_slices, x, bytes, qs[x]))
-                for x in range(num_slices)]
-    [p.start() for p in procs]
 
-    with open(dest, 'w') as dfp:
-        done = False
-        while not done:
-            for i in range(num_slices):
-                buf = qs[i].get()
-                if buf is None:
-                    done = True
-                else:
-                    dfp.write(buf)
+    qs = []
+    procs = []
+
+    for n in range(num_slices):
+        qs.append(Queue(10))
+        procs.append(Process(target=dl_slice,
+                        args=(src, num_slices, n, bytes, qs[n], pw, port)))
+        procs[n].start()
+        time.sleep(0.1)
+
+    try:
+        with open(dest, 'w') as dfp:
+            done = False
+            while not done:
+                for i in range(num_slices):
+                    buf = qs[i].get()
+                    if buf is None:
+                        done = True
+                    else:
+                        #sys.stdout.write(buf)
+                        dfp.write(buf)
+    finally:
+        [p.terminate for p in procs if p.is_alive()]
 
     [p.join() for p in procs]
+
+def establish_ssh_cred(user, host, port):
+    """Make a test ssh connection to determine the password, if needed"""
+
+    cmd = 'ssh -p %d %s@%s echo didit' % (port, user, host)
+    password = None
+
+    session = pexpect.spawn(cmd)
+    while True:
+        options = ['password:', 'didit', pexpect.EOF, pexpect.TIMEOUT]
+        match = session.expect(options)
+
+        if match == 0:
+            password = getpass.getpass(session.before + 'password:')
+            session.sendline(password)
+        elif match == 1:
+            session.close()
+            return password
+        elif match == 2:
+            raise
+        elif match == 3:
+            raise
 
 def main():
     args = parse_args()
@@ -140,7 +221,9 @@ def main():
         output_split(args.srcfile, args.num_slices, args.slice, args.bytes,
                          sys.stdout)
     else:
-        dl_file(args.srcfile, args.destfile, 2, 1)
+        user, host, path = parse_net_spec(args.srcfile)
+        password = establish_ssh_cred(user, host, args.port)
+        dl_file(args.srcfile, args.destfile, 10, 2000, password, args.port)
 
 
 main()
