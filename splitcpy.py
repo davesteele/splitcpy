@@ -58,6 +58,14 @@ def parse_args():
                 help='ssh port to use (if not the default)',
             )
 
+    parser.add_argument('-n',
+                metavar='num',
+                dest='num_slices',
+                type=int,
+                default=10,
+                help='number of parallel slices to run (default=10)'
+            )
+
     args = parser.parse_args()
 
     try:
@@ -216,7 +224,7 @@ def main():
     else:
         user, host, path = parse_net_spec(args.srcfile)
         password = establish_ssh_cred(user, host, args.port)
-        dl_file(args.srcfile, args.destfile, 10, 2000, password, args.port)
+        dl_file(args.srcfile, args.destfile, args.num_slices, 2000, password, args.port)
 
 
 main()
