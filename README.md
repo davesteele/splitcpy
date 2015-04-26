@@ -28,5 +28,5 @@ This is currently demostration quality.
       -n num      number of parallel slices to run (default=10)
       -b bytes    chunk size for slices (default=10,000)
     
-    The source file is remote.
+    The source file is remote. Remote files are specified as e.g. user@host:path.
 
