@@ -66,6 +66,14 @@ def parse_args():
                 help='number of parallel slices to run (default=10)'
             )
 
+    parser.add_argument('-b',
+                metavar='bytes',
+                dest='slice_size',
+                type=int,
+                default=10000,
+                help="chunk size for slices (default=10,000)"
+            )
+
     args = parser.parse_args()
 
     try:
@@ -224,7 +232,7 @@ def main():
     else:
         user, host, path = parse_net_spec(args.srcfile)
         password = establish_ssh_cred(user, host, args.port)
-        dl_file(args.srcfile, args.destfile, args.num_slices, 2000, password, args.port)
+        dl_file(args.srcfile, args.destfile, args.num_slices, args.slice_size, password, args.port)
 
 
 main()
