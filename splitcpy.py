@@ -32,7 +32,7 @@ def parse_args():
     parser = argparse.ArgumentParser(
                 description='Copy a remote file using multiple SSH streams.',
                 epilog="The source file is remote. " + \
-                       "Remote files are specified as e.g. user@host:path\n",
+                       "Remote files are specified as e.g. user@host:path",
             )
 
     parser.add_argument('srcfile',
@@ -135,14 +135,14 @@ def del_fifo(path):
 
 def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
     """Call a remote interleave slice of a file to download"""
-    user, host, src_file = parse_net_spec(src_spec)
 
+    user, host, src_file = parse_net_spec(src_spec)
     p = fifo_path = None
 
     try:
         fifo_path = make_fifo()
 
-        spltcmd = "splitcpy.py %s -s %d,%d,%d" % (src_file, num_slices, slice, bytes)
+        spltcmd = "splitcpy %s -s %d,%d,%d" % (src_file, num_slices, slice, bytes)
         sshcmd = "ssh -p %d %s@%s %s >%s" % (port, user, host, spltcmd, fifo_path)
 
         if pw is not None:
@@ -161,7 +161,6 @@ def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
                 break
 
             queue.put(buf)
-
     finally:
         if p and p.poll() is None:
             p.kill()
@@ -195,22 +194,24 @@ def dl_file(src, dest, num_slices, bytes, pw, port):
                     if buf is None:
                         done = True
                     else:
-                        #sys.stdout.write(buf)
                         dfp.write(buf)
     finally:
         [p.terminate for p in procs if p.is_alive()]
 
     [p.join() for p in procs]
 
+class CredException(Exception):
+    pass
+
 def establish_ssh_cred(user, host, port):
     """Make a test ssh connection to determine the password, if needed"""
 
-    cmd = 'ssh -p %d %s@%s echo didit' % (port, user, host)
+    cmd = 'ssh -p %d %s@%s which splitcpy' % (port, user, host)
     password = None
 
     session = pexpect.spawn(cmd)
     while True:
-        options = ['password:', 'didit', pexpect.EOF, pexpect.TIMEOUT]
+        options = ['password:', 'splitcpy', pexpect.EOF, pexpect.TIMEOUT]
         match = session.expect(options)
 
         if match == 0:
@@ -220,9 +221,9 @@ def establish_ssh_cred(user, host, port):
             session.close()
             return password
         elif match == 2:
-            raise
+            raise CredException
         elif match == 3:
-            raise
+            raise CredException
 
 def main():
     args = parse_args()
@@ -231,9 +232,13 @@ def main():
         output_split(args.srcfile, args.num_slices, args.slice, args.bytes,
                          sys.stdout)
     else:
-        user, host, path = parse_net_spec(args.srcfile)
-        password = establish_ssh_cred(user, host, args.port)
-        dl_file(args.srcfile, args.destfile, args.num_slices, args.slice_size, password, args.port)
+        try:
+            user, host, path = parse_net_spec(args.srcfile)
+            password = establish_ssh_cred(user, host, args.port)
+            dl_file(args.srcfile, args.destfile, args.num_slices, args.slice_size, password, args.port)
+        except CredException:
+            print "Error establishing contact with remote splitcpy"
+            sys.exit(-1)
 
 
 main()
