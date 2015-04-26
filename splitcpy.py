@@ -27,7 +27,6 @@ def is_net_spec(spec):
     """Is the path spec of the form user@host:path?"""
     return parse_net_spec(spec)[0] is not None
 
-
 def parse_args():
     """Return an argparse args object"""
     parser = argparse.ArgumentParser(
@@ -76,20 +75,14 @@ def parse_args():
     except AttributeError:
         pass
     except (IndexError, ValueError, AssertionError):
-        parser.print_usage()
-        print "Invalid interleave argument"
-        sys.exit(1)
+        parser.error("Invalid interleave argument")
 
     if not args.s and (not is_net_spec(args.srcfile)
                        or is_net_spec(args.destfile)):
-        parser.print_usage()
-        print "Currently only supports download copying"
-        sys.exit(1)
+        parser.error("Currently only supports download copying")
 
     if not args.s and not args.destfile:
-        parser.print_usage()
-        print "Must specify destination file"
-        sys.exit(1)
+        args.destfile = parse_net_spec(args.srcfile)[2].split('/')[-1]
 
     return(args)
 
