@@ -120,7 +120,7 @@ def slice_iter(fp, num_slices, slice_num, bytes):
 
 def output_split(srcfile, num_slices, slice, bytes, dst):
     """Send an interleave slice of srcfile to dst"""
-    with open(srcfile, 'r') as src:
+    with open(srcfile, 'rb') as src:
         for pkt in slice_iter(src, num_slices, slice, bytes):
             dst.write(pkt)
 
