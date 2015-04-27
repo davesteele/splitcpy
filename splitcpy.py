@@ -186,7 +186,7 @@ def dl_file(src, dest, num_slices, bytes, pw, port):
         time.sleep(0.1)
 
     try:
-        with open(dest, 'w') as dfp:
+        with open(dest, 'wb') as dfp:
             done = False
             while not done:
                 for i in range(num_slices):
@@ -237,7 +237,7 @@ def main():
             password = establish_ssh_cred(user, host, args.port)
             dl_file(args.srcfile, args.destfile, args.num_slices, args.slice_size, password, args.port)
         except CredException:
-            print "Error establishing contact with remote splitcpy"
+            print("Error establishing contact with remote splitcpy")
             sys.exit(-1)
 
 
