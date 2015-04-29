@@ -10,7 +10,7 @@ This is currently demonstration quality.
 
 ## Usage
 
-    $ ./splitcpy.py -h
+    $ splitcpy.py -h
     usage: splitcpy.py [-h] [-s n,i,l] [-p port] [-n num] [-b bytes]
                        srcfile [destfile]
     
