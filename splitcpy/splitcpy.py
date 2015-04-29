@@ -75,6 +75,12 @@ def parse_args():
                 help="chunk size for slices (default=10,000)"
             )
 
+    parser.add_argument('--version',
+                action='version',
+                version="%(prog)s " + __version__,
+                help="return version and exit"
+            )
+
     args = parser.parse_args()
 
     try:
@@ -241,4 +247,5 @@ def main():
             sys.exit(-1)
 
 
-main()
+if __name__ == '__main__':
+    main()
