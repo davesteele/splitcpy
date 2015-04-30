@@ -5,7 +5,6 @@ import sys
 import re
 from multiprocessing import Process, Queue
 import subprocess
-
 import pexpect
 import getpass
 import os
@@ -13,6 +12,22 @@ import shutil
 import uuid
 import time
 import tempfile
+
+"""
+Copy file over split multiple SSH streams
+
+Main entry points:
+
+    establish_ssh_cred()
+        Verify ssh connectivity and determine pw, if needed
+
+    output_split()
+        write out one of the stripes for a file, for transmisison
+
+    dl_file()
+        retrieve a file from a remote host using multiple ssh streams
+"""
+
 
 def parse_net_spec(spec):
     """Parse user@host:path into user, host, path"""
@@ -26,89 +41,6 @@ def parse_net_spec(spec):
 def is_net_spec(spec):
     """Is the path spec of the form user@host:path?"""
     return parse_net_spec(spec)[0] is not None
-
-def parse_args():
-    """Return an argparse args object"""
-    parser = argparse.ArgumentParser(
-                description='Copy a remote file using multiple SSH streams.',
-                epilog="The source file is remote. " + \
-                       "Remote files are specified as e.g. user@host:path",
-            )
-
-    parser.add_argument('srcfile',
-                help="Source file",
-            )
-
-    parser.add_argument('destfile',
-                nargs='?',
-                default='',
-                help="Destination file",
-            )
-
-    parser.add_argument('-s',
-                metavar='n,i,l',
-                help="Generate file interleave of 'l' bytes for the 'i'th\
-                      slice out of 'n'(internal use only)",
-            )
-
-    parser.add_argument('-p',
-                metavar='port',
-                dest='port',
-                type=int,
-                default=22,
-                help='ssh port to use (if not the default)',
-            )
-
-    parser.add_argument('-n',
-                metavar='num',
-                dest='num_slices',
-                type=int,
-                default=10,
-                help='number of parallel slices to run (default=10)'
-            )
-
-    parser.add_argument('-b',
-                metavar='bytes',
-                dest='slice_size',
-                type=int,
-                default=10000,
-                help="chunk size for slices (default=10,000)"
-            )
-
-    parser.add_argument('--version',
-                action='version',
-                version="%(prog)s " + __version__,
-                help="return version and exit"
-            )
-
-    args = parser.parse_args()
-
-    try:
-        params = args.s.split(',')
-        assert(len(params) == 3)
-
-        setattr(args, 'num_slices', int(params[0]))
-        setattr(args, 'slice', int(params[1]))
-        setattr(args, 'bytes', int(params[2]))
-
-        assert(args.bytes>0)
-        assert(args.slice>=0)
-        assert(args.num_slices>0)
-        assert(args.num_slices>args.slice)
-    except AttributeError:
-        pass
-    except (IndexError, ValueError, AssertionError):
-        parser.error("Invalid interleave argument")
-
-    if not args.s and (not is_net_spec(args.srcfile)
-                       or is_net_spec(args.destfile)):
-        parser.error("Currently only supports download copying")
-
-    if not args.s and not args.destfile:
-        args.destfile = parse_net_spec(args.srcfile)[2].split('/')[-1]
-
-    return(args)
-
 
 def slice_iter(fp, num_slices, slice_num, bytes):
     """Iterator returning packets of an interleaved slice of a file"""
@@ -209,15 +141,15 @@ def dl_file(src, dest, num_slices, bytes, pw, port):
 class CredException(Exception):
     pass
 
-def establish_ssh_cred(user, host, port):
+def establish_ssh_cred(user, host, port, needed_script='splitcpy'):
     """Make a test ssh connection to determine the password, if needed"""
 
-    cmd = 'ssh -p %d %s@%s which splitcpy' % (port, user, host)
+    cmd = 'ssh -p %d %s@%s which %s' % (port, user, host, needed_script)
     password = None
 
     session = pexpect.spawn(cmd)
     while True:
-        options = ['password:', 'splitcpy', pexpect.EOF, pexpect.TIMEOUT]
+        options = ['password:', needed_script, pexpect.EOF, pexpect.TIMEOUT]
         match = session.expect(options)
 
         if match == 0:
@@ -230,6 +162,88 @@ def establish_ssh_cred(user, host, port):
             raise CredException
         elif match == 3:
             raise CredException
+
+def parse_args(parse_class=argparse.ArgumentParser):
+    """Return an argparse args object"""
+    parser = parse_class(
+                description='Copy a remote file using multiple SSH streams.',
+                epilog="The source file is remote. " + \
+                       "Remote files are specified as e.g. user@host:path",
+            )
+
+    parser.add_argument('srcfile',
+                help="Source file",
+            )
+
+    parser.add_argument('destfile',
+                nargs='?',
+                default='',
+                help="Destination file",
+            )
+
+    parser.add_argument('-s',
+                metavar='n,i,l',
+                help="Generate file interleave of 'l' bytes for the 'i'th\
+                      slice out of 'n'(internal use only)",
+            )
+
+    parser.add_argument('-p',
+                metavar='port',
+                dest='port',
+                type=int,
+                default=22,
+                help='ssh port to use (if not the default)',
+            )
+
+    parser.add_argument('-n',
+                metavar='num',
+                dest='num_slices',
+                type=int,
+                default=10,
+                help='number of parallel slices to run (default=10)'
+            )
+
+    parser.add_argument('-b',
+                metavar='bytes',
+                dest='slice_size',
+                type=int,
+                default=10000,
+                help="chunk size for slices (default=10,000)"
+            )
+
+    parser.add_argument('--version',
+                action='version',
+                version="%(prog)s " + __version__,
+                help="return version and exit"
+            )
+
+    args = parser.parse_args()
+
+    try:
+        params = args.s.split(',')
+        assert(len(params) == 3)
+
+        setattr(args, 'num_slices', int(params[0]))
+        setattr(args, 'slice', int(params[1]))
+        setattr(args, 'bytes', int(params[2]))
+
+        assert(args.bytes>0)
+        assert(args.slice>=0)
+        assert(args.num_slices>0)
+        assert(args.num_slices>args.slice)
+    except AttributeError:
+        pass
+    except (IndexError, ValueError, AssertionError):
+        parser.error("Invalid interleave argument")
+
+    if not args.s and (not is_net_spec(args.srcfile)
+                       or is_net_spec(args.destfile)):
+        parser.error("Currently only supports download copying")
+
+    if not args.s and not args.destfile:
+        args.destfile = parse_net_spec(args.srcfile)[2].split('/')[-1]
+
+    return(args)
 
 def main():
     args = parse_args()
