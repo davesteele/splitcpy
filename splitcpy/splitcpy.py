@@ -134,7 +134,7 @@ def dl_file(src, dest, num_slices, bytes, pw, port):
                     else:
                         dfp.write(buf)
     finally:
-        [p.terminate for p in procs if p.is_alive()]
+        [p.terminate() for p in procs if p.is_alive()]
 
     [p.join() for p in procs]
 
