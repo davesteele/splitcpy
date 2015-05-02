@@ -211,12 +211,6 @@ def parse_args(parse_class=argparse.ArgumentParser):
                 help="chunk size for slices (default=10,000)"
             )
 
-    parser.add_argument('--version',
-                action='version',
-                version="%(prog)s " + __version__,
-                help="return version and exit"
-            )
-
     args = parser.parse_args()
 
     try:
