@@ -1,17 +1,27 @@
 Source: splitcpy
-Section: unknown
+Section: main
 Priority: optional
 Maintainer: David Steele <dsteele@gmail.com>
-Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.5
+Build-Depends: debhelper (>= 9),
+                dh-python,
+                python-all (>= 2.6.6-3~),
+                python-setuptools,
+                python3-all,
+                python3-setuptools,
+                help2man,
+X-Python-Version: >= 2.6
+X-Python3-Version: >= 3.2
+Standards-Version: 3.9.6
 Homepage: https://github.com/davesteele/splitcpy
 Vcs-Git: https://github.com/davesteele/splitcpy.git
 Vcs-Browser: https://github.com/davesteele/splitcpy
 
 Package: splitcpy
 Architecture: all
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, ${python:Depends}
 Description: Copy a remote file using multiple SSH streams
  splitcpy can be used to exhange files with remote systems over multiple
- parallel SSH sessions. This can be used to bypass bandwidth restrictions
+ parallel SSH sessions. This can circumvent bandwidth restrictions
  placed on individual TCP streams.
+ .
+ splitcpy must be installed on both the local and remote host.

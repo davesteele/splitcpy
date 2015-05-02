@@ -1,32 +1,38 @@
 #!/usr/bin/make -f
-# See debhelper(7) (uncomment to enable)
-# output every command that modifies files on the build system.
-#DH_VERBOSE = 1
+#export DH_VERBOSE = 1
 
-# see EXAMPLES in dpkg-buildflags(1) and read /usr/share/dpkg/*
-DPKG_EXPORT_BUILDFLAGS = 1
-include /usr/share/dpkg/default.mk
+include /usr/share/dpkg/pkg-info.mk
 
-# see FEATURE AREAS in dpkg-buildflags(1)
-#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+PYTHON2_VERSIONS = $(shell pyversions -r)
+PYTHON3_VERSIONS = $(shell py3versions -r)
+py3sdo = set -e; $(foreach py, $(PYTHON3_VERSIONS), $(py) $(1);)
+pyalldo = set -e; $(foreach py, $(PYTHON2_VERSIONS) $(PYTHON3_VERSIONS), $(py) $(1);)
 
-# see ENVIRONMENT in dpkg-buildflags(1)
-# package maintainers to append CFLAGS
-#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
-# package maintainers to append LDFLAGS
-#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+DEBIAN_VERSION = $(shell (dpkg-parsechangelog | grep Version | sed 's/Version..//' | sed 's/-.\+//'))
+PRODUCT_VERSION = $(shell (grep version splitcpy/version.py | sed 's/.\+\"\(.\+\)\"/\1/'))
 
-
-# main packaging script based on dh7 syntax
 %:
-	dh $@ 
+	dh $@ --with python2,python3
 
-# debmake generated override targets
-# This is example for Cmake (See http://bugs.debian.org/641051 )
-#override_dh_auto_configure:
-#	dh_auto_configure -- \
-#	-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH)
+override_dh_auto_build:
+	if [ ${DEBIAN_VERSION} -ne ${PRODUCT_VERSION} ] ; then exit -1 ; fi
+	dh_auto_build
+	$(call py3sdo, setup.py build)
+	help2man -N --no-discard-stderr splitcpy/splitcpy.py >debian/splitcpy.1 \
+        -n "Copy a file in parallel over multiple SSH streams" \
+        --version-string=${DEBIAN_VERSION}
+	sed -i 's/SPLITCPY.PY/SPLITCPY/g' debian/splitcpy.1
+	sed -i 's/splitcpy.py/splitcpy/g' debian/splitcpy.1
 
+override_dh_auto_install:
+	# whichever called last, will result in shebang update
+	# in this case, the scripts will end up with python3 shebang
+	# reverse the order if you want to continue using python2 shebang
+	dh_auto_install
+	$(call py3sdo, setup.py install --root=$(CURDIR)/debian/$(DEB_SOURCE) --install-layout=deb)
 
-
-
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf build
+	rm -rf *.egg-info
+	rm -f debian/splitcpy.1
