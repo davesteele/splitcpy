@@ -1,0 +1,17 @@
+Source: splitcpy
+Section: unknown
+Priority: optional
+Maintainer: David Steele <dsteele@gmail.com>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: https://github.com/davesteele/splitcpy
+Vcs-Git: https://github.com/davesteele/splitcpy.git
+Vcs-Browser: https://github.com/davesteele/splitcpy
+
+Package: splitcpy
+Architecture: all
+Depends: ${misc:Depends}
+Description: Copy a remote file using multiple SSH streams
+ splitcpy can be used to exhange files with remote systems over multiple
+ parallel SSH sessions. This can be used to bypass bandwidth restrictions
+ placed on individual TCP streams.
