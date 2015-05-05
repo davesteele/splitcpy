@@ -251,6 +251,14 @@ def parse_args(parse_class=argparse.ArgumentParser):
                        or is_net_spec(args.destfile)):
         parser.error("Currently only supports download copying")
 
+    if not args.s and (is_net_spec(args.srcfile)
+                       and is_net_spec(args.destfile)):
+        parser.error("Either source or destination must be local")
+        
+    if not args.s and (not is_net_spec(args.srcfile)
+                       and not is_net_spec(args.destfile)):
+        parser.error("Either source or destination must be remote")
+        
     if not args.s and not args.destfile:
         args.destfile = parse_net_spec(args.srcfile)[2].split('/')[-1]
 
