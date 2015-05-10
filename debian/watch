@@ -2,7 +2,7 @@ version=3
 
 opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/splitcpy-$1\.tar\.gz/,\
 pgpsigurlmangle=s/github.com/raw.githubusercontent.com/;\
-s/archive\/upstream/signatures/;\
+s/archive\/master/signatures/;\
 s/([^\/]+)\.tar\.gz/splitcpy-$1\.tar\.gz/;\
 s/$/.asc/ \
- https://github.com/davesteele/splitcpy/tags master/?v?(\d[\d\.]*)\.tar\.gz
+ https://github.com/davesteele/splitcpy/tags .+master/(\d[\d\.]*)\.tar\.gz
