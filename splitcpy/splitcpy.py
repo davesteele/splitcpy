@@ -1,4 +1,21 @@
 #!/usr/bin/python
+# Copyright 2015 David Steele <dsteele@gmail.com>
+#
+# This file is part of splitcpy.
+#
+# splitcpy is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# splitcpy is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with splitcpy.  If not, see <http://www.gnu.org/licenses/>.
+
 
 import argparse
 import sys
@@ -234,6 +251,14 @@ def parse_args(parse_class=argparse.ArgumentParser):
                        or is_net_spec(args.destfile)):
         parser.error("Currently only supports download copying")
 
+    if not args.s and (is_net_spec(args.srcfile)
+                       and is_net_spec(args.destfile)):
+        parser.error("Either source or destination must be local")
+        
+    if not args.s and (not is_net_spec(args.srcfile)
+                       and not is_net_spec(args.destfile)):
+        parser.error("Either source or destination must be remote")
+        
     if not args.s and not args.destfile:
         args.destfile = parse_net_spec(args.srcfile)[2].split('/')[-1]
 
