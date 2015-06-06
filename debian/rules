@@ -15,7 +15,7 @@ PRODUCT_VERSION = $(shell (grep version splitcpy/version.py | sed 's/.\+\"\(.\+\
 	dh $@ --with python2,python3
 
 override_dh_auto_build:
-	if [ ${DEBIAN_VERSION} -ne ${PRODUCT_VERSION} ] ; then exit -1 ; fi
+	if [ ${DEBIAN_VERSION} != ${PRODUCT_VERSION} ] ; then exit 1 ; fi
 	dh_auto_build
 	$(call py3sdo, setup.py build)
 	help2man -N --no-discard-stderr splitcpy/splitcpy.py >debian/splitcpy.1 \
