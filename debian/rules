@@ -4,7 +4,7 @@
 include /usr/share/dpkg/pkg-info.mk
 
 PYTHON2_VERSIONS = $(shell pyversions -r)
-PYTHON3_VERSIONS = $(shell py3versions -r)
+PYTHON3_VERSIONS = python3
 py3sdo = set -e; $(foreach py, $(PYTHON3_VERSIONS), $(py) $(1);)
 pyalldo = set -e; $(foreach py, $(PYTHON2_VERSIONS) $(PYTHON3_VERSIONS), $(py) $(1);)
 
