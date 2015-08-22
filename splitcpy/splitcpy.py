@@ -200,8 +200,8 @@ def parse_args(parse_class=argparse.ArgumentParser):
 
     parser.add_argument('-s',
                 metavar='n,i,l',
-                help="Generate file interleave of 'l' bytes for the 'i'th\
-                      slice out of 'n'(internal use only)",
+                help="(internal use only) Generate file interleave of 'l'\
+                       bytes for the 'i'th slice out of 'n'",
             )
 
     parser.add_argument('-p',
@@ -254,11 +254,11 @@ def parse_args(parse_class=argparse.ArgumentParser):
     if not args.s and (is_net_spec(args.srcfile)
                        and is_net_spec(args.destfile)):
         parser.error("Either source or destination must be local")
-        
+
     if not args.s and (not is_net_spec(args.srcfile)
                        and not is_net_spec(args.destfile)):
         parser.error("Either source or destination must be remote")
-        
+
     if not args.s and not args.destfile:
         args.destfile = parse_net_spec(args.srcfile)[2].split('/')[-1]
 
@@ -269,7 +269,7 @@ def main():
 
     if args.s:
         output_split(args.srcfile, args.num_slices, args.slice, args.bytes,
-                         sys.stdout)
+                         sys.stdout.buffer)
     else:
         try:
             user, host, path = parse_net_spec(args.srcfile)
