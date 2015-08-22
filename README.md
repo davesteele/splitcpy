@@ -6,7 +6,7 @@ streams.
 
 Install the script into the path on both the local and remote computer.
 
-This is currently demonstration quality.
+This is currently only supports downloading files.
 
 ## Usage
 
