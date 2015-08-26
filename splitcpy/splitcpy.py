@@ -51,9 +51,9 @@ def parse_net_spec(spec):
     m = re.search('^(.+?)@(.+?):(.+)$', spec)
 
     if m:
-        return [m.group(x) for x in range(1,4)]
+        return tuple([m.group(x) for x in range(1,4)])
     else:
-        return [None, None, spec]
+        return (None, None, spec)
 
 def is_net_spec(spec):
     """Is the path spec of the form user@host:path?"""
@@ -180,9 +180,9 @@ def establish_ssh_cred(user, host, port, needed_script='splitcpy'):
         elif match == 3:
             raise CredException
 
-def parse_args(parse_class=argparse.ArgumentParser):
+def parse_args(args):
     """Return an argparse args object"""
-    parser = parse_class(
+    parser = argparse.ArgumentParser(
                 description='Copy a remote file using multiple SSH streams.',
                 epilog="The source file is remote. " + \
                        "Remote files are specified as e.g. user@host:path",
@@ -228,7 +228,7 @@ def parse_args(parse_class=argparse.ArgumentParser):
                 help="chunk size for slices (default=10,000)"
             )
 
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     try:
         params = args.s.split(',')
@@ -264,12 +264,16 @@ def parse_args(parse_class=argparse.ArgumentParser):
 
     return(args)
 
-def main():
-    args = parse_args()
+def main(args=sys.argv[1:]):
+    args = parse_args(args)
 
     if args.s:
+        outfp = sys.stdout
+        if sys.version_info >= (3,0):
+            outfp = sys.stdout.buffer
+
         output_split(args.srcfile, args.num_slices, args.slice, args.bytes,
-                         sys.stdout.buffer)
+                         outfp)
     else:
         try:
             user, host, path = parse_net_spec(args.srcfile)
@@ -281,4 +285,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
