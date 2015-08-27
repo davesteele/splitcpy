@@ -20,7 +20,8 @@ def test_parse_exception(cmdstr):
         splitcpy.splitcpy.parse_args(cmdstr.split())
         assert exit_mock.called
         assert exit_mock.call_args[0][0] != 0
-        assert type(exit_mock.call_args[0][0]) == type(1)
+        assert isinstance(exit_mock.call_args[0][0], int)
+
 
 @pytest.mark.parametrize("cmdstr", [
     "user@host:remotefile",
@@ -33,7 +34,8 @@ def test_parse_fileargs(cmdstr):
         assert args.srcfile == "user@host:remotefile"
         assert args.destfile == "remotefile"
 
-@pytest.mark.parametrize( ("spec", "user", "host", "path", "isnet"), [
+
+@pytest.mark.parametrize(("spec", "user", "host", "path", "isnet"), [
     ("user@host:path", "user", "host", "path", True),
     ("host:path", None, None, "host:path", False),
     ("user@host", None, None, "user@host", False),
@@ -42,5 +44,3 @@ def test_parse_fileargs(cmdstr):
 def test_parse_net_spec(spec, user, host, path, isnet):
     assert (user, host, path) == splitcpy.splitcpy.parse_net_spec(spec)
     assert isnet == splitcpy.splitcpy.is_net_spec(spec)
-
-

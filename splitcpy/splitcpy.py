@@ -51,13 +51,15 @@ def parse_net_spec(spec):
     m = re.search('^(.+?)@(.+?):(.+)$', spec)
 
     if m:
-        return tuple([m.group(x) for x in range(1,4)])
+        return tuple([m.group(x) for x in range(1, 4)])
     else:
         return (None, None, spec)
+
 
 def is_net_spec(spec):
     """Is the path spec of the form user@host:path?"""
     return parse_net_spec(spec)[0] is not None
+
 
 def slice_iter(fp, num_slices, slice_num, bytes):
     """Iterator returning packets of an interleaved slice of a file"""
@@ -73,20 +75,24 @@ def slice_iter(fp, num_slices, slice_num, bytes):
 
         fp.seek((num_slices-1)*bytes, 1)
 
+
 def output_split(srcfile, num_slices, slice, bytes, dst):
     """Send an interleave slice of srcfile to dst"""
     with open(srcfile, 'rb') as src:
         for pkt in slice_iter(src, num_slices, slice, bytes):
             dst.write(pkt)
 
+
 def make_fifo():
     fifo_path = os.path.join(tempfile.mkdtemp(), uuid.uuid4().__str__())
     os.mkfifo(fifo_path)
     return fifo_path
 
+
 def del_fifo(path):
     dir = '/'.join(path.split('/')[0:-1])
     shutil.rmtree(dir)
+
 
 def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
     """Call a remote interleave slice of a file to download"""
@@ -97,15 +103,18 @@ def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
     try:
         fifo_path = make_fifo()
 
-        spltcmd = "splitcpy %s -s %d,%d,%d" % (src_file, num_slices, slice, bytes)
-        sshcmd = "ssh -p %d %s@%s %s >%s" % (port, user, host, spltcmd, fifo_path)
+        spltcmd = "splitcpy %s -s %d,%d,%d" % (src_file, num_slices,
+                                               slice, bytes)
+        sshcmd = "ssh -p %d %s@%s %s >%s" % (port, user, host, spltcmd,
+                                             fifo_path)
 
         if pw is not None:
             sshcmd = "SSHPASS=%s sshpass -e %s" % (pw, sshcmd)
 
         p = subprocess.Popen(sshcmd, shell=True, stdout=subprocess.PIPE,
-                                                 stderr=subprocess.PIPE,
-                                                 stdin=subprocess.PIPE)
+                             stderr=subprocess.PIPE,
+                             stdin=subprocess.PIPE
+                             )
 
         fp = open(fifo_path, 'rb')
 
@@ -123,7 +132,6 @@ def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
         if fifo_path:
             del_fifo(fifo_path)
 
-
     queue.put(None)
 
 
@@ -136,7 +144,7 @@ def dl_file(src, dest, num_slices, bytes, pw, port):
     for n in range(num_slices):
         qs.append(Queue(10))
         procs.append(Process(target=dl_slice,
-                        args=(src, num_slices, n, bytes, qs[n], pw, port)))
+                     args=(src, num_slices, n, bytes, qs[n], pw, port)))
         procs[n].start()
         time.sleep(0.1)
 
@@ -155,8 +163,10 @@ def dl_file(src, dest, num_slices, bytes, pw, port):
 
     [p.join() for p in procs]
 
+
 class CredException(Exception):
     pass
+
 
 def establish_ssh_cred(user, host, port, needed_script='splitcpy'):
     """Make a test ssh connection to determine the password, if needed"""
@@ -180,53 +190,60 @@ def establish_ssh_cred(user, host, port, needed_script='splitcpy'):
         elif match == 3:
             raise CredException
 
+
 def parse_args(args):
     """Return an argparse args object"""
     parser = argparse.ArgumentParser(
                 description='Copy a remote file using multiple SSH streams.',
-                epilog="The source file is remote. " + \
+                epilog="The source file is remote. " +
                        "Remote files are specified as e.g. user@host:path",
             )
 
-    parser.add_argument('srcfile',
-                help="Source file",
-            )
+    parser.add_argument(
+        'srcfile',
+        help="Source file",
+        )
 
-    parser.add_argument('destfile',
-                nargs='?',
-                default='',
-                help="Destination file",
-            )
+    parser.add_argument(
+        'destfile',
+        nargs='?',
+        default='',
+        help="Destination file",
+        )
 
-    parser.add_argument('-s',
-                metavar='n,i,l',
-                help="(internal use only) Generate file interleave of 'l'\
-                       bytes for the 'i'th slice out of 'n'",
-            )
+    parser.add_argument(
+        '-s',
+        metavar='n,i,l',
+        help="(internal use only) Generate file interleave of 'l'\
+        bytes for the 'i'th slice out of 'n'",
+        )
 
-    parser.add_argument('-p',
-                metavar='port',
-                dest='port',
-                type=int,
-                default=22,
-                help='ssh port to use (if not the default)',
-            )
+    parser.add_argument(
+        '-p',
+        metavar='port',
+        dest='port',
+        type=int,
+        default=22,
+        help='ssh port to use (if not the default)',
+        )
 
-    parser.add_argument('-n',
-                metavar='num',
-                dest='num_slices',
-                type=int,
-                default=10,
-                help='number of parallel slices to run (default=10)'
-            )
+    parser.add_argument(
+        '-n',
+        metavar='num',
+        dest='num_slices',
+        type=int,
+        default=10,
+        help='number of parallel slices to run (default=10)'
+        )
 
-    parser.add_argument('-b',
-                metavar='bytes',
-                dest='slice_size',
-                type=int,
-                default=10000,
-                help="chunk size for slices (default=10,000)"
-            )
+    parser.add_argument(
+        '-b',
+        metavar='bytes',
+        dest='slice_size',
+        type=int,
+        default=10000,
+        help="chunk size for slices (default=10,000)"
+        )
 
     args = parser.parse_args(args)
 
@@ -238,25 +255,25 @@ def parse_args(args):
         setattr(args, 'slice', int(params[1]))
         setattr(args, 'bytes', int(params[2]))
 
-        assert(args.bytes>0)
-        assert(args.slice>=0)
-        assert(args.num_slices>0)
-        assert(args.num_slices>args.slice)
+        assert(args.bytes > 0)
+        assert(args.slice >= 0)
+        assert(args.num_slices > 0)
+        assert(args.num_slices > args.slice)
     except AttributeError:
         pass
     except (IndexError, ValueError, AssertionError):
         parser.error("Invalid interleave argument")
 
-    if not args.s and (not is_net_spec(args.srcfile)
-                       or is_net_spec(args.destfile)):
+    if not args.s and (not is_net_spec(args.srcfile) or
+                       is_net_spec(args.destfile)):
         parser.error("Currently only supports download copying")
 
-    if not args.s and (is_net_spec(args.srcfile)
-                       and is_net_spec(args.destfile)):
+    if not args.s and (is_net_spec(args.srcfile) and
+                       is_net_spec(args.destfile)):
         parser.error("Either source or destination must be local")
 
-    if not args.s and (not is_net_spec(args.srcfile)
-                       and not is_net_spec(args.destfile)):
+    if not args.s and (not is_net_spec(args.srcfile) and
+                       not is_net_spec(args.destfile)):
         parser.error("Either source or destination must be remote")
 
     if not args.s and not args.destfile:
@@ -264,21 +281,23 @@ def parse_args(args):
 
     return(args)
 
+
 def main(args=sys.argv[1:]):
     args = parse_args(args)
 
     if args.s:
         outfp = sys.stdout
-        if sys.version_info >= (3,0):
+        if sys.version_info >= (3, 0):
             outfp = sys.stdout.buffer
 
         output_split(args.srcfile, args.num_slices, args.slice, args.bytes,
-                         outfp)
+                     outfp)
     else:
         try:
             user, host, path = parse_net_spec(args.srcfile)
             password = establish_ssh_cred(user, host, args.port)
-            dl_file(args.srcfile, args.destfile, args.num_slices, args.slice_size, password, args.port)
+            dl_file(args.srcfile, args.destfile, args.num_slices,
+                    args.slice_size, password, args.port)
         except CredException:
             print("Error establishing contact with remote splitcpy")
             sys.exit(-1)
