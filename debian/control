@@ -23,7 +23,7 @@ Architecture: all
 Depends: ${misc:Depends}, ${python:Depends}, python-pexpect, python3-pexpect,
          sshpass,
 Description: Copy a remote file using multiple SSH streams
- splitcpy can be used to exhange files with remote systems over multiple
+ splitcpy can be used to exchange files with remote systems over multiple
  parallel SSH sessions. This can circumvent bandwidth restrictions
  placed on individual TCP streams.
  .
