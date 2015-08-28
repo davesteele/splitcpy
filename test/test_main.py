@@ -25,3 +25,15 @@ def test_main_remote_dl():
 
         assert output_split.called
 #        output_split.assert_called_with('localfile', 1, 0, 10000)
+
+
+@patch('splitcpy.splitcpy.establish_ssh_cred',
+       side_effect=splitcpy.splitcpy.CredException)
+@patch('splitcpy.splitcpy.sys.exit')
+def test_main_cred_excep(exit, establish_cred):
+    cmd = "-n 5 -b 20 user@host:remotefile localfile"
+    splitcpy.splitcpy.main(cmd.split())
+
+    assert exit.called
+    assert exit.call_args[0][0] != 0
+    assert isinstance(exit.call_args[0][0], int)
