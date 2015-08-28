@@ -1,3 +1,10 @@
+splitcpy (0.3-1) unstable; urgency=low
+
+  * New version due to PyPi restrictions.
+  * Still Closes: #796581
+
+ -- David Steele <dsteele@gmail.com>  Fri, 28 Aug 2015 10:51:52 -0400
+
 splitcpy (0.2-1) UNRELEASED; urgency=low
 
   * Testing environment established.
