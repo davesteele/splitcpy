@@ -1,5 +1,5 @@
 Source: splitcpy
-Section: main
+Section: net
 Priority: optional
 Maintainer: David Steele <dsteele@gmail.com>
 Build-Depends: debhelper (>= 9),
@@ -20,7 +20,7 @@ Vcs-Browser: https://github.com/davesteele/splitcpy
 
 Package: splitcpy
 Architecture: all
-Depends: ${misc:Depends}, ${python:Depends}, python-pexpect, python3-pexpect,
+Depends: ${misc:Depends}, python3, python (>= 2.7), python-pexpect, python3-pexpect,
          sshpass,
 Description: Copy a remote file using multiple SSH streams
  splitcpy can be used to exchange files with remote systems over multiple
