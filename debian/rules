@@ -30,6 +30,7 @@ override_dh_auto_install:
 	# reverse the order if you want to continue using python2 shebang
 	dh_auto_install
 	$(call py3sdo, setup.py install --root=$(CURDIR)/debian/$(DEB_SOURCE) --install-layout=deb)
+	rm -rf debian/splitcpy/usr/lib/python3/dist-packages/splitcpy/__pycache__ || /bin/true
 
 override_dh_auto_clean:
 	dh_auto_clean
