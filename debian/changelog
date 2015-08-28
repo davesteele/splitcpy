@@ -1,4 +1,11 @@
-splitcpy (0.1-1) unstable; urgency=low
+splitcpy (0.2-1) UNRELEASED; urgency=low
+
+  * Testing environment established.
+  * pip install capability
+
+ -- David Steele <dsteele@gmail.com>  Thu, 27 Aug 2015 20:55:52 -0400
+
+splitcpy (0.1-1) UNRELEASED; urgency=low
 
   * Initial release (Closes: #796581)
 
