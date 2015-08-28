@@ -2,6 +2,27 @@
 
 from setuptools import setup
 import splitcpy
+import sys
+
+from setuptools.command.test import test as TestCommand
+
+
+class PyTest(TestCommand):
+    user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = []
+
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errno = pytest.main(self.pytest_args)
+        sys.exit(errno)
 
 setup(name='splitcpy',
       packages=['splitcpy'],
@@ -22,7 +43,8 @@ setup(name='splitcpy',
             'console_scripts': ['splitcpy=splitcpy.splitcpy:main'],
       },
       install_requires=['pexpect', ],
-      tests_require=['funcsigs', 'mock', 'pytest'],
+      tests_require=['pytest', ],
+      cmdclass={'test': PyTest},
       author="David Steele",
       author_email="dsteele@gmail.com",
       url='https://github.com/davesteele/splitcpy',
