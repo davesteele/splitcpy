@@ -1,0 +1,21 @@
+Package: splitcpy
+Version: 0.3-1
+Architecture: all
+Maintainer: David Steele <dsteele@gmail.com>
+Installed-Size: 59
+Depends: python3, python (>= 2.7), python-pexpect, python3-pexpect, sshpass
+Homepage: https://github.com/davesteele/splitcpy
+Priority: optional
+Section: net
+Filename: pool/main/s/splitcpy/splitcpy_0.3-1_all.deb
+Size: 6896
+SHA256: 159b654ba383e5b8f44d2ae12bb06923a0a7f724ef7981deae8f34102d9d7f20
+SHA1: 29222f3f297e1fbb6d08754ce835b00bae8df3a5
+MD5sum: 501c2d62a05bc9dc7e1cb91ab867e24a
+Description: Copy a remote file using multiple SSH streams
+ splitcpy can be used to exchange files with remote systems over multiple
+ parallel SSH sessions. This can circumvent bandwidth restrictions
+ placed on individual TCP streams.
+ .
+ splitcpy must be installed on both the local and remote host.
+

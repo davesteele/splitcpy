@@ -1,0 +1,108 @@
+<!-- Creator     : groff version 1.22.3 -->
+<!-- CreationDate: Fri Aug 28 23:45:45 2015 -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta name="generator" content="groff -Thtml, see www.gnu.org">
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<meta name="Content-Style" content="text/css">
+<style type="text/css">
+       p       { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       pre     { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       table   { margin-top: 0; margin-bottom: 0; vertical-align: top }
+       h1      { text-align: center }
+</style>
+<title>SPLITCPY</title>
+
+</head>
+<body>
+
+<h1 align="center">SPLITCPY</h1>
+
+<a href="#NAME">NAME</a><br>
+<a href="#DESCRIPTION">DESCRIPTION</a><br>
+
+<hr>
+
+
+<h2>NAME
+<a name="NAME"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">splitcpy
+&minus; Copy a file in parallel over multiple SSH
+streams</p>
+
+<h2>DESCRIPTION
+<a name="DESCRIPTION"></a>
+</h2>
+
+
+<p style="margin-left:11%; margin-top: 1em">usage: splitcpy
+[&minus;h] [&minus;s n,i,l] [&minus;p port] [&minus;n num]
+[&minus;b bytes]</p>
+
+<p style="margin-left:22%; margin-top: 1em">srcfile
+[destfile]</p>
+
+<p style="margin-left:11%; margin-top: 1em">Copy a remote
+file using multiple SSH streams.</p>
+
+<p style="margin-left:11%; margin-top: 1em"><b>positional
+arguments:</b> <br>
+srcfile</p>
+
+<p style="margin-left:22%;">Source file</p>
+
+<p style="margin-left:11%;">destfile</p>
+
+<p style="margin-left:22%;">Destination file</p>
+
+<p style="margin-left:11%; margin-top: 1em"><b>optional
+arguments: <br>
+&minus;h</b>, <b>&minus;&minus;help</b></p>
+
+<p style="margin-left:22%;">show this help message and
+exit</p>
+
+<p style="margin-left:11%;"><b>&minus;s</b> n,i,l</p>
+
+<p style="margin-left:22%;">(internal use only) Generate
+file interleave of &rsquo;l&rsquo; bytes for the
+&rsquo;i&rsquo;th slice out of &rsquo;n&rsquo;</p>
+
+<p style="margin-left:11%;"><b>&minus;p</b> port</p>
+
+<p style="margin-left:22%;">ssh port to use (if not the
+default)</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="9%">
+
+
+<p><b>&minus;n</b> num</p></td>
+<td width="2%"></td>
+<td width="69%">
+
+
+<p>number of parallel slices to run (default=10)</p></td>
+<td width="9%">
+</td></tr>
+</table>
+
+<p style="margin-left:11%;"><b>&minus;b</b> bytes</p>
+
+<p style="margin-left:22%;">chunk size for slices
+(default=10,000)</p>
+
+<p style="margin-left:11%; margin-top: 1em">The source file
+is remote. Remote files are specified as e.g.
+user@host:path</p>
+<hr>
+</body>
+</html>

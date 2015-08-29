@@ -1,0 +1,94 @@
+<!doctype html>
+<html itemscope itemtype="http://schema.org/Product">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Splitcpy by davesteele</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script src="javascripts/jquery-1.7.1.min.js"></script>
+    <script src="javascripts/jquery.mustache.js"></script>
+    <script src="javascripts/mustache.js"></script>
+
+    <meta itemprop="name" content="Splitcpy">
+    <meta itemprop="description" content="Copy a remote file using multiple SSH streams">
+
+    <script type="text/javascript">
+
+    function dotemplate(data, textstatus, jqXHR ) {
+        $.Mustache.addFromDom('debtmpl');
+        $('#deblist').mustache('debtmpl', data);
+    }
+
+    $(document).ready(function() {
+        $.getJSON('pkgs.json', dotemplate);
+    })
+
+    </script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Splitcpy</h1>
+        <p>Copy a remote file using multiple SSH streams</p>
+
+        <p class="view"><a href="https://github.com/davesteele/splitcpy">View the Project on GitHub <small>davesteele/splitcpy</small></a></p>
+
+        <ul>
+          <li><a href="https://github.com/davesteele/splitcpy/zipball/release">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/davesteele/splitcpy/tarball/release">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/davesteele/splitcpy">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>Splitcpy file copy utility.</h3>
+
+<p>This repository contains the splitcpy command-line file copy tool.<br><br>
+
+splitcpy can be used to exchange files with remote systems over multiple parallel SSH sessions. This can circumvent bandwidth restrictions placed on individual TCP streams.<br><br>
+
+splitcpy must be installed on both the local and remote host.
+
+<h3>Documentation</h3>
+<ul>
+<li><a href="man/splitcpy.html">splitcpy man page</a> (<a href="man/splitcpy.pdf">pdf</a>)</li>
+<li><a href="https://raw.githubusercontent.com/davesteele/splitcpy/debian/debian/changelog">splitcpy changelog</a></li>
+</ul>
+<h3>Download</h3>
+<ul>
+<script type='text/template' id="debtmpl">
+{{#latest_pkgs}}
+<li><a href="deb/{{.}}">{{.}}</a></li>
+{{/latest_pkgs}}
+</script>
+<div id="deblist"></div>
+<li>Or set up a <a href="ppa.html">splitcpy PPA repository</a> link to integrate installation and updates with your package management system.</li>
+<li><a href="archive.html">Package Archive</a></li>
+</ul>
+<h3>Support/Feedback</h3>
+<ul>
+<li><a href="https://github.com/davesteele/splitcpy/issues" >Issues</a></p></li>
+<div class="g-plus" data-action="share"></div>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://plus.google.com/100462058146704694561?rel=author">David Steele</a> (<a href="https://github.com/davesteele">davesteele</a>)</p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
+  </body>
+</html>
