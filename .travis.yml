@@ -9,5 +9,10 @@ python:
   - "pypy"
   - "pypy3"
 addons:
-install: pip install tox-travis pytest pexpect mock
-script: tox
+install:
+  - pip install tox-travis pytest pexpect mock coveralls
+script:
+  - tox
+  - coverage run --source=splitcpy setup.py test
+after_success:
+  - coveralls
