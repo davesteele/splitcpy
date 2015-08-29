@@ -14,7 +14,7 @@ Build-Depends: debhelper (>= 9),
 X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.2
 Standards-Version: 3.9.6
-Homepage: https://github.com/davesteele/splitcpy
+Homepage: https://davesteele.github.io/splitcpy/
 Vcs-Git: https://github.com/davesteele/splitcpy.git
 Vcs-Browser: https://github.com/davesteele/splitcpy
 
