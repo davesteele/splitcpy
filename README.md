@@ -1,4 +1,7 @@
 # splitcpy
+
+<a href="https://davesteele.github.io/splitcpy/">Home Page</a>
+
 Copy files remotely using multiple streams
 
 Avoid traffic shaping of individual TCP streams by copying over multiple

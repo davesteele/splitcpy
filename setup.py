@@ -47,5 +47,5 @@ setup(name='splitcpy',
       cmdclass={'test': PyTest},
       author="David Steele",
       author_email="dsteele@gmail.com",
-      url='https://github.com/davesteele/splitcpy',
+      url='https://davesteele.github.io/splitcpy/',
       )
