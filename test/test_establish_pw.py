@@ -37,8 +37,8 @@ def test_get_pw(getpass, pexpect, val, cept, sendlines, tpw):
                                                   'thescript')
 
         assert pw == tpw
-        sessionmock.sendline.call_count = sendlines
-        sessionmock.expect.call_count = len(val)
+        assert sessionmock.sendline.call_count == sendlines
+        assert sessionmock.expect.call_count == len(val)
 
     spawnarg = splitcpy.splitcpy.pexpect.spawn.call_args[0][0]
     assert 'user' in spawnarg
