@@ -2,6 +2,8 @@
 
 import splitcpy
 from mock import patch
+import os
+import subprocess
 
 
 def test_main_local_dl():
@@ -37,3 +39,13 @@ def test_main_cred_excep(exit, establish_cred):
     assert exit.called
     assert exit.call_args[0][0] != 0
     assert isinstance(exit.call_args[0][0], int)
+
+
+def test_that_last_line():
+    path = splitcpy.__path__[0]
+    cmd = "python %s/splitcpy.py -h" % path
+
+    p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+    (out, err) = p.communicate()
+
+    assert "usage:" in out.decode()
