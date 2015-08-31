@@ -17,7 +17,7 @@ def test_main_local_dl():
             assert dl_file.called
             dl_file.assert_called_with('user@host:remotefile',
                                        'localfile', 5, 20, None, 22)
-            assert cred.calld
+            assert cred.called
             cred.assert_called_with('user', 'host', 22)
 
 
