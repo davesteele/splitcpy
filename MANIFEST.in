@@ -1,0 +1,4 @@
+exclude .tox
+exclude .coverage
+exclude htmlcov
+include README.md
