@@ -21,7 +21,7 @@ Vcs-Browser: https://github.com/davesteele/splitcpy
 Package: splitcpy
 Architecture: all
 Depends: ${misc:Depends}, python3, python (>= 2.7), python-pexpect, python3-pexpect,
-         sshpass,
+         sshpass, python-pkg-resources, python3-pkg-resources,
 Description: Copy a remote file using multiple SSH streams
  splitcpy can be used to exchange files with remote systems over multiple
  parallel SSH sessions. This can circumvent bandwidth restrictions
