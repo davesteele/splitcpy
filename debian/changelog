@@ -1,3 +1,9 @@
+splitcpy (0.3-2) unstable; urgency=low
+
+  * Add missing dependency on python3-pkg-resources.
+
+ -- David Steele <dsteele@gmail.com>  Sat, 19 Sep 2015 21:41:30 -0400
+
 splitcpy (0.3-1) unstable; urgency=low
 
   * New version due to PyPi restrictions.
