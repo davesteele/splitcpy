@@ -196,7 +196,9 @@ def parse_args(args):
     parser = argparse.ArgumentParser(
                 description='Copy a remote file using multiple SSH streams.',
                 epilog="The source file is remote. " +
-                       "Remote files are specified as e.g. user@host:path",
+                       "Remote files are specified as e.g. user@host:path. "
+                       "'splitcpy' must be installed on both the local and "
+                       "remote hosts.",
             )
 
     parser.add_argument(
