@@ -11,6 +11,9 @@ Install the script into the path on both the local and remote computer.
 
 This is currently only supports downloading files.
 
+Note that _splitcpy_ requires _sshpass_ if sites are
+being accessed that require an ssh password.
+
 ## Usage
 
     $ splitcpy.py -h
