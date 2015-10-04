@@ -36,3 +36,5 @@ being accessed that require an ssh password.
     
     The source file is remote. Remote files are specified as e.g. user@host:path.
 
+
+[![Build Status](https://travis-ci.org/davesteele/splitcpy.svg?branch=master)](https://travis-ci.org/davesteele/splitcpy) [![Coverage Status](https://coveralls.io/repos/davesteele/splitcpy/badge.svg?branch=master&service=github)](https://coveralls.io/github/davesteele/splitcpy?branch=master)
