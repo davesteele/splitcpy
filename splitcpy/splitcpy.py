@@ -253,6 +253,18 @@ def parse_args(args):
 
     args = parser.parse_args(args)
 
+    msg = validate_args(args)
+    if msg:
+        parser.error(msg)
+
+    if not args.s and not args.destfile:
+        args.destfile = parse_net_spec(args.srcfile)[2].split('/')[-1]
+
+    return(args)
+
+
+def validate_args(args):
+
     try:
         params = args.s.split(',')
         assert(len(params) == 3)
@@ -268,24 +280,19 @@ def parse_args(args):
     except AttributeError:
         pass
     except (IndexError, ValueError, AssertionError):
-        parser.error("Invalid interleave argument")
+        return "Invalid interleave argument"
 
     if not args.s and (not is_net_spec(args.srcfile) or
                        is_net_spec(args.destfile)):
-        parser.error("Currently only supports download copying")
+        return "Currently only supports download copying"
 
     if not args.s and (is_net_spec(args.srcfile) and
                        is_net_spec(args.destfile)):
-        parser.error("Either source or destination must be local")
+        return "Either source or destination must be local"
 
     if not args.s and (not is_net_spec(args.srcfile) and
                        not is_net_spec(args.destfile)):
-        parser.error("Either source or destination must be remote")
-
-    if not args.s and not args.destfile:
-        args.destfile = parse_net_spec(args.srcfile)[2].split('/')[-1]
-
-    return(args)
+        return "Either source or destination must be remote"
 
 
 def main(args=sys.argv[1:]):
