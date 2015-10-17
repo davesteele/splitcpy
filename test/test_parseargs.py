@@ -3,6 +3,7 @@
 import splitcpy
 import pytest
 from mock import patch
+import getpass
 
 
 @pytest.mark.parametrize("cmdstr", [
@@ -37,7 +38,7 @@ def test_parse_fileargs(cmdstr):
 
 @pytest.mark.parametrize(("spec", "user", "host", "path", "isnet"), [
     ("user@host:path", "user", "host", "path", True),
-    ("host:path", None, None, "host:path", False),
+    ("host:path", getpass.getuser(), "host", "path", True),
     ("user@host", None, None, "user@host", False),
     ("path", None, None, "path", False),
 ])

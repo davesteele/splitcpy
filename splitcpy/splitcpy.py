@@ -48,10 +48,14 @@ Main entry points:
 
 def parse_net_spec(spec):
     """Parse user@host:path into user, host, path"""
-    m = re.search('^(.+?)@(.+?):(.+)$', spec)
+    fullre = re.search('^(.+?)@(.+?):(.+)$', spec)
+    smallre = re.search('^(.+?):(.+)$', spec)
 
-    if m:
-        return tuple([m.group(x) for x in range(1, 4)])
+    if fullre:
+        return tuple([fullre.group(x) for x in range(1, 4)])
+    elif smallre:
+        user = getpass.getuser()
+        return tuple([user] + [smallre.group(x) for x in range(1, 3)])
     else:
         return (None, None, spec)
 
@@ -196,7 +200,7 @@ def parse_args(args):
     parser = argparse.ArgumentParser(
                 description='Copy a remote file using multiple SSH streams.',
                 epilog="The source file is remote. " +
-                       "Remote files are specified as e.g. user@host:path. "
+                       "Remote files are specified as e.g. [user@]host:path. "
                        "'splitcpy' must be installed on both the local and "
                        "remote hosts.",
             )
