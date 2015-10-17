@@ -2,7 +2,6 @@
 
 import splitcpy
 from mock import patch
-import os
 import subprocess
 
 
