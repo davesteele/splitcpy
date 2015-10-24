@@ -29,6 +29,8 @@ import shutil
 import uuid
 import time
 import tempfile
+import glob
+import json
 
 """
 Copy file over split multiple SSH streams
@@ -195,6 +197,26 @@ def establish_ssh_cred(user, host, port, needed_script='splitcpy'):
             raise CredException
 
 
+def eval_files(flist):
+    info = {
+                'version': __version__,     # flake8: noqa
+                'entries': [],
+           }
+
+    for spec in flist:
+        for entry in glob.glob(spec):
+            type = 'f'
+            if os.path.isdir(entry):
+                type = 'd'
+
+            readable = os.access(entry, os.R_OK)
+            writeable = os.access(entry, os.W_OK)
+
+            info['entries'].append([type, readable, writeable, entry])
+
+    return info
+
+
 def parse_args(args):
     """Return an argparse args object"""
     parser = argparse.ArgumentParser(
@@ -222,6 +244,12 @@ def parse_args(args):
         metavar='n,i,l',
         help="(internal use only) Generate file interleave of 'l'\
         bytes for the 'i'th slice out of 'n'",
+        )
+
+    parser.add_argument(
+        '-f',
+        action='store_true',
+        help="(internal use only) Output far-side wildcard information",
         )
 
     parser.add_argument(
@@ -282,17 +310,18 @@ def validate_args(args):
     except (IndexError, ValueError, AssertionError):
         return "Invalid interleave argument"
 
-    if not args.s and (not is_net_spec(args.srcfile) or
-                       is_net_spec(args.destfile)):
-        return "Currently only supports download copying"
+    if not args.f:
+        if not args.s and (not is_net_spec(args.srcfile) or
+                           is_net_spec(args.destfile)):
+            return "Currently only supports download copying"
 
-    if not args.s and (is_net_spec(args.srcfile) and
-                       is_net_spec(args.destfile)):
-        return "Either source or destination must be local"
+        if not args.s and (is_net_spec(args.srcfile) and
+                           is_net_spec(args.destfile)):
+            return "Either source or destination must be local"
 
-    if not args.s and (not is_net_spec(args.srcfile) and
-                       not is_net_spec(args.destfile)):
-        return "Either source or destination must be remote"
+        if not args.s and (not is_net_spec(args.srcfile) and
+                           not is_net_spec(args.destfile)):
+            return "Either source or destination must be remote"
 
 
 def main(args=sys.argv[1:]):
@@ -305,6 +334,12 @@ def main(args=sys.argv[1:]):
 
         output_split(args.srcfile, args.num_slices, args.slice, args.bytes,
                      outfp)
+
+    elif args.f:
+        info = eval_files([args.srcfile])
+
+        print(json.dumps(info, indent=2, separators=(',',':')))
+
     else:
         try:
             user, host, path = parse_net_spec(args.srcfile)
