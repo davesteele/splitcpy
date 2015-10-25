@@ -3,13 +3,18 @@
 
 include /usr/share/dpkg/pkg-info.mk
 
+PKD = $(word 1,$(abspath $(dir $(MAKEFILE_LIST))))
+PKG = $(shell dpkg-parsechangelog -l$(PKD)/changelog --show-field=Source)
+
 PYTHON2_VERSIONS = $(shell pyversions -r)
 PYTHON3_VERSIONS = python3
 py3sdo = set -e; $(foreach py, $(PYTHON3_VERSIONS), $(py) $(1);)
 pyalldo = set -e; $(foreach py, $(PYTHON2_VERSIONS) $(PYTHON3_VERSIONS), $(py) $(1);)
 
-DEBIAN_VERSION = $(shell (dpkg-parsechangelog | grep Version | sed 's/Version..//' | sed 's/-.\+//'))
+DEBIAN_VERSION = $(shell (dpkg-parsechangelog -l$(PKD)/changelog| grep Version | \
+                 sed 's/Version..//' | sed 's/-.\+//'))
 PRODUCT_VERSION = $(shell (grep version splitcpy/version.py | sed 's/.\+\"\(.\+\)\"/\1/'))
+VER ?= $(DEBIAN_VERSION)
 
 %:
 	dh $@ --with python2,python3
@@ -41,3 +46,7 @@ override_dh_auto_clean:
 	rm -rf .coverage
 	rm -rf htmlcov
 
+.PHONY get_orig_source:
+get-orig-source:  $(info I: $(PKG)_$(VER))
+	@echo "# Downloading..."
+	uscan --noconf --verbose --rename --destdir=$(CURDIR) --check-dirname-level=0 --force-download --download-version $(VER) $(PKD)
