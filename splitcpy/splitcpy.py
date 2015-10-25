@@ -359,7 +359,7 @@ def validate_args(args):
 def main(args=sys.argv[1:]):
     args = parse_args(args)
 
-    if args.s:
+    if args.s:                      # download - remote side
         outfp = sys.stdout
         if sys.version_info >= (3, 0):
             outfp = sys.stdout.buffer
@@ -367,12 +367,12 @@ def main(args=sys.argv[1:]):
         output_split(args.fileargs[0], args.num_slices, args.slice, args.bytes,
                      outfp)
 
-    elif args.f:  # establish password, remote side
+    elif args.f:                    # establish password, remote side
         info = eval_files(args.fileargs)
 
         print(json.dumps(info, indent=2, separators=(',',':')))
 
-    else:  # download - local side
+    else:                           # download - local side
         try:
             user, host = parse_net_spec(args.rawsrcs[0])[0:2]
             localized_srcs = [parse_net_spec(x)[2] for x in args.rawsrcs]
