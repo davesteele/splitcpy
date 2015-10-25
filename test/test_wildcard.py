@@ -5,7 +5,6 @@ import shutil
 import os
 import json
 from collections import namedtuple
-from mock import patch
 
 import splitcpy
 
