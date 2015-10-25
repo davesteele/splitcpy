@@ -9,6 +9,8 @@ import getpass
 @pytest.mark.parametrize("cmdstr", [
     "localfile localfile",
     "localfile user@host:remotefile",
+    "u1@h:path u2@h:path",
+    "u@h1:path u@h2:path",
     "-s 1 user@host:remotefile",
     "-s 1,1 user@host:remotefile",
     "-s 1,1,1 user@host:remotefile",

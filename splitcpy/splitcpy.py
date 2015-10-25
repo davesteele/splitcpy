@@ -340,6 +340,10 @@ def validate_args(args):
         else:
             return "Malformed argument list"
 
+        for src in args.rawsrcs:
+            if parse_net_spec(args.rawsrcs[0])[0:2] != parse_net_spec(src)[0:2]:
+                return "The user and host must be the same for all files"
+
     return None
 
 
@@ -361,15 +365,19 @@ def main(args=sys.argv[1:]):
 
     else:
         try:
-            user, host, path = parse_net_spec(args.rawsrcs[0])
+            user, host = parse_net_spec(args.rawsrcs[0])[0:2]
             password = establish_ssh_cred(user, host, args.port)
 
-            dest = args.rawdest
-            if os.path.isdir(dest):
-                dest = os.path.join(dest, os.path.basename(path))
+            for src in args.rawsrcs:
+                path = parse_net_spec(src)[2]
 
-            dl_file(args.rawsrcs[0], dest, args.num_slices,
-                    args.slice_size, password, args.port)
+                dest = args.rawdest
+                if os.path.isdir(dest):
+                    dest = os.path.join(dest, os.path.basename(path))
+
+                dl_file(args.rawsrcs[0], dest, args.num_slices,
+                      args.slice_size, password, args.port)
+
         except CredException:
             print("Error establishing contact with remote splitcpy")
             sys.exit(-1)
