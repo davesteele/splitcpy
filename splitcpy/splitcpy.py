@@ -174,23 +174,32 @@ class CredException(Exception):
     pass
 
 
-def establish_ssh_cred(user, host, port, needed_script='splitcpy'):
+def establish_ssh_cred(user, host, port, pathlist):
     """Make a test ssh connection to determine the password, if needed"""
 
-    cmd = 'ssh -p %d %s@%s which %s' % (port, user, host, needed_script)
+    quotedlist = ['"' + x + '"' for x in pathlist]
+    remote_cmd = "splitcpy -f " + " ".join(quotedlist)
+    cmd = "ssh -p %d %s@%s " % (port, user, host)
+    cmd += remote_cmd
     password = None
 
     session = pexpect.spawn(cmd)
     while True:
-        options = ['password:', needed_script, pexpect.EOF, pexpect.TIMEOUT]
+        options = ['password: ', 'version', pexpect.EOF, pexpect.TIMEOUT]
         match = session.expect(options)
 
         if match == 0:
             password = getpass.getpass(session.before + 'password:')
             session.sendline(password)
         elif match == 1:
+            # get the json in the ouput
+            text = session.before + 'version' + session.after
+            m = re.search("^.*?(\{.+\}).*?$", text, re.DOTALL)
+            remote_info = json.loads(m.group(1))
+
             session.close()
-            return password
+
+            return password, remote_info
         elif match == 2:
             raise CredException
         elif match == 3:
@@ -358,17 +367,19 @@ def main(args=sys.argv[1:]):
         output_split(args.fileargs[0], args.num_slices, args.slice, args.bytes,
                      outfp)
 
-    elif args.f:
+    elif args.f:  # establish password, remote side
         info = eval_files(args.fileargs)
 
         print(json.dumps(info, indent=2, separators=(',',':')))
 
-    else:
+    else:  # download - local side
         try:
             user, host = parse_net_spec(args.rawsrcs[0])[0:2]
-            password = establish_ssh_cred(user, host, args.port)
+            localized_srcs = [parse_net_spec(x)[2] for x in args.rawsrcs]
+            password, remote_info = establish_ssh_cred(user, host, args.port,
+                                                       localized_srcs)
 
-            for src in args.rawsrcs:
+            for src in remote_info['entries']:
                 path = parse_net_spec(src)[2]
 
                 dest = args.rawdest

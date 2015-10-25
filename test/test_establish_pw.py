@@ -8,7 +8,8 @@ def pexpect_session(val):
     sessionmock = Mock()
     sessionmock.expect.side_effect = val
     sessionmock.sendline.return_value = None
-    sessionmock.before = "text"
+    sessionmock.before = 'foo {"'
+    sessionmock.after = '": 0.3, "entries": ["f1", "f2"]} bar'
 
     return sessionmock
 
@@ -31,10 +32,10 @@ def test_get_pw(getpass, pexpect, val, cept, sendlines, tpw):
     if cept:
         with pytest.raises(splitcpy.splitcpy.CredException):
             pw = splitcpy.splitcpy.establish_ssh_cred('user', 'host', 22,
-                                                      'thescript')
+                                                      ['f1', 'f2'])
     else:
-        pw = splitcpy.splitcpy.establish_ssh_cred('user', 'host', 22,
-                                                  'thescript')
+        pw, info = splitcpy.splitcpy.establish_ssh_cred('user', 'host', 22,
+                                                        'thescript')
 
         assert pw == tpw
         assert sessionmock.sendline.call_count == sendlines
@@ -44,4 +45,3 @@ def test_get_pw(getpass, pexpect, val, cept, sendlines, tpw):
     assert 'user' in spawnarg
     assert 'host' in spawnarg
     assert '22' in spawnarg
-    assert 'thescript' in spawnarg

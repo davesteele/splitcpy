@@ -5,19 +5,19 @@ from mock import patch
 import subprocess
 
 
-def test_main_local_dl():
+@patch('splitcpy.splitcpy.establish_ssh_cred',
+       return_value=(None, {'version': 0.3, 'entries': ['f1']}))
+@patch('splitcpy.splitcpy.dl_file')
+def test_main_local_dl(dl_file, cred):
 
-    with patch('splitcpy.splitcpy.establish_ssh_cred',
-               return_value=None) as cred:
-        with patch('splitcpy.splitcpy.dl_file') as dl_file:
-            cmd = "-n 5 -b 20 user@host:remotefile localfile"
-            splitcpy.splitcpy.main(cmd.split())
+    cmd = "-n 5 -b 20 user@host:remotefile localfile"
+    splitcpy.splitcpy.main(cmd.split())
 
-            assert dl_file.called
-            dl_file.assert_called_with('user@host:remotefile',
-                                       'localfile', 5, 20, None, 22)
-            assert cred.called
-            cred.assert_called_with('user', 'host', 22)
+    assert dl_file.called
+    dl_file.assert_called_with('user@host:remotefile',
+                               'localfile', 5, 20, None, 22)
+    assert cred.called
+    cred.assert_called_with('user', 'host', 22, ['remotefile'])
 
 
 def test_main_remote_dl():
