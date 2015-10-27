@@ -185,7 +185,7 @@ def establish_ssh_cred(user, host, port, pathlist):
 
     session = pexpect.spawn(cmd)
     while True:
-        options = ['password: ', 'version', pexpect.EOF, pexpect.TIMEOUT]
+        options = ['password: ', '}', pexpect.EOF, pexpect.TIMEOUT]
         match = session.expect(options)
 
         if match == 0:
@@ -193,7 +193,7 @@ def establish_ssh_cred(user, host, port, pathlist):
             session.sendline(password)
         elif match == 1:
             # get the json in the ouput
-            text = session.before + 'version' + session.after
+            text = session.before + session.after
             m = re.search("^.*?(\{.+\}).*?$", text, re.DOTALL)
             remote_info = json.loads(m.group(1))
 
@@ -380,7 +380,8 @@ def main(args=sys.argv[1:]):
                                                        localized_srcs)
 
             for src in remote_info['entries']:
-                path = parse_net_spec(src)[2]
+                srcfile = src[3]
+                path = parse_net_spec(srcfile)[2]
 
                 dest = args.rawdest
                 if os.path.isdir(dest):
