@@ -185,7 +185,11 @@ def establish_ssh_cred(user, host, port, pathlist):
 
     session = pexpect.spawn(cmd)
     while True:
-        options = ['password: ', '}', pexpect.EOF, pexpect.TIMEOUT]
+        options = [
+            'password: ', '}', pexpect.EOF, pexpect.TIMEOUT,
+            'fingerprint',
+        ]
+
         match = session.expect(options)
 
         if match == 0:
@@ -203,6 +207,8 @@ def establish_ssh_cred(user, host, port, pathlist):
         elif match == 2:
             raise CredException
         elif match == 3:
+            raise CredException
+        elif match == 4:
             raise CredException
 
 
