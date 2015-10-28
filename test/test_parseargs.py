@@ -16,6 +16,8 @@ import getpass
     "-s 1,1,1 user@host:remotefile",
     "-s 1,0,0 user@host:remotefile",
     "-s 0,0,1 user@host:remotefile",
+    "",
+    "u@h:p localfile localdest",
 ])
 def test_parse_exception(cmdstr):
     with patch('splitcpy.splitcpy.sys.exit') as exit_mock:

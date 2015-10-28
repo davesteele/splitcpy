@@ -3,6 +3,10 @@
 import splitcpy
 from mock import patch
 import subprocess
+import pytest
+import tempfile
+import os
+import shutil
 
 
 @patch('splitcpy.splitcpy.establish_ssh_cred',
@@ -49,3 +53,28 @@ def test_that_last_line():
     (out, err) = p.communicate()
 
     assert "usage:" in out.decode()
+
+
+@pytest.fixture
+def testdir(request):
+    dir = tempfile.mkdtemp()
+
+    def fin():
+        shutil.rmtree(dir)
+
+    request.addfinalizer(fin)
+
+    return dir
+
+
+@patch('splitcpy.splitcpy.establish_ssh_cred',
+       return_value=(None, {'version': 0.3,
+                            'entries': [[None, None, None, 'f1']]}))
+@patch('splitcpy.splitcpy.dl_file')
+def test_dest_dir(dl_file, cred, testdir):
+    cmd = "-n 5 -b 20 user@host:remotefile " + testdir
+    splitcpy.splitcpy.main(cmd.split())
+
+    dl_file.assert_called_with('user@host:remotefile',
+                               os.path.join(testdir, 'f1'),
+                               5, 20, None, 22)

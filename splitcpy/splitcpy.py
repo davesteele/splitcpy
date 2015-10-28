@@ -321,8 +321,6 @@ def validate_args(args):
             assert(args.slice >= 0)
             assert(args.num_slices > 0)
             assert(args.num_slices > args.slice)
-        except AttributeError:
-            pass
         except (IndexError, ValueError, AssertionError):
             return "Invalid interleave argument"
 
