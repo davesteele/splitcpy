@@ -17,8 +17,10 @@ class MyInstall(InstallCommand):
                 found = True
 
         if not found:
-            print("'sshpass' must be installed")
-            sys.exit(1)
+            print(
+                "WARNING - "
+                "'sshpass' must be installed to support ssh passwords"
+            )
 
         InstallCommand.run(self)
 
