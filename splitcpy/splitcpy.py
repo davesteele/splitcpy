@@ -32,6 +32,9 @@ import tempfile
 import glob
 import json
 
+from collections import namedtuple
+
+
 """
 Copy file over split multiple SSH streams
 
@@ -50,21 +53,27 @@ Main entry points:
 
 def parse_net_spec(spec):
     """Parse user@host:path into user, host, path"""
+
+    PathSpec = namedtuple('PathSpec', "user, host, path")
+
     fullre = re.search('^(.+?)@(.+?):(.+)$', spec)
     smallre = re.search('^(.+?):(.+)$', spec)
 
+    values = None
     if fullre:
-        return tuple([fullre.group(x) for x in range(1, 4)])
+        values = [fullre.group(x) for x in range(1, 4)]
     elif smallre:
         user = getpass.getuser()
-        return tuple([user] + [smallre.group(x) for x in range(1, 3)])
+        values = [user] + [smallre.group(x) for x in range(1, 3)]
     else:
-        return (None, None, spec)
+        values = None, None, spec
+
+    return PathSpec(*values)
 
 
 def is_net_spec(spec):
     """Is the path spec of the form user@host:path?"""
-    return parse_net_spec(spec)[0] is not None
+    return parse_net_spec(spec).user is not None
 
 
 def slice_iter(fp, num_slices, slice_num, bytes):
@@ -103,15 +112,15 @@ def del_fifo(path):
 def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
     """Call a remote interleave slice of a file to download"""
 
-    user, host, src_file = parse_net_spec(src_spec)
+    ns = parse_net_spec(src_spec)
     p = fifo_path = None
 
     try:
         fifo_path = make_fifo()
 
-        spltcmd = "splitcpy %s -s %d,%d,%d" % (src_file, num_slices,
+        spltcmd = "splitcpy %s -s %d,%d,%d" % (ns.path, num_slices,
                                                slice, bytes)
-        sshcmd = "ssh -p %d %s@%s %s >%s" % (port, user, host, spltcmd,
+        sshcmd = "ssh -p %d %s@%s %s >%s" % (port, ns.user, ns.host, spltcmd,
                                              fifo_path)
 
         if pw is not None:
@@ -353,8 +362,10 @@ def validate_args(args):
         else:
             return "Malformed argument list"
 
+        first_ns = parse_net_spec(args.rawsrcs[0])
         for src in args.rawsrcs:
-            if parse_net_spec(args.rawsrcs[0])[0:2] != parse_net_spec(src)[0:2]:
+            src_ns = parse_net_spec(src)
+            if first_ns.user != src_ns.user or first_ns.host != src_ns.host:
                 return "The user and host must be the same for all files"
 
     return None
@@ -378,14 +389,15 @@ def main(args=sys.argv[1:]):
 
     else:                           # download - local side
         try:
-            user, host = parse_net_spec(args.rawsrcs[0])[0:2]
-            localized_srcs = [parse_net_spec(x)[2] for x in args.rawsrcs]
-            password, remote_info = establish_ssh_cred(user, host, args.port,
+            ns = parse_net_spec(args.rawsrcs[0])
+            localized_srcs = [parse_net_spec(x).path for x in args.rawsrcs]
+            password, remote_info = establish_ssh_cred(ns.user, ns.host,
+                                                       args.port,
                                                        localized_srcs)
 
             for src in remote_info['entries']:
                 srcfile = src[3]
-                path = parse_net_spec(srcfile)[2]
+                path = parse_net_spec(srcfile).path
 
                 dest = args.rawdest
                 if os.path.isdir(dest):
