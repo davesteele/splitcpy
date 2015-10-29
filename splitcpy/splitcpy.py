@@ -33,6 +33,7 @@ import glob
 import json
 
 from collections import namedtuple
+from distutils.version import LooseVersion
 
 
 """
@@ -394,6 +395,15 @@ def main(args=sys.argv[1:]):
             password, remote_info = establish_ssh_cred(ns.user, ns.host,
                                                        args.port,
                                                        localized_srcs)
+
+            remote_ver = remote_info['version']
+            if LooseVersion(remote_ver) < LooseVersion(__VER_DL_MIN__):
+                print("Remote splitcpy is too old")
+                sys.exit(1)
+
+            if LooseVersion(remote_ver) > LooseVersion(__VER_DL_MAX__):
+                print("Remote splitcpy is too new - upgrade local copy")
+                sys.exit(1)
 
             for src in remote_info['entries']:
                 srcfile = src[3]

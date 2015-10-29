@@ -10,7 +10,7 @@ import shutil
 
 
 @patch('splitcpy.splitcpy.establish_ssh_cred',
-       return_value=(None, {'version': 0.3,
+       return_value=(None, {'version': splitcpy.__version__,
                             'entries': [[None, None, None, 'f1']]}))
 @patch('splitcpy.splitcpy.dl_file')
 def test_main_local_dl(dl_file, cred):
@@ -68,7 +68,7 @@ def testdir(request):
 
 
 @patch('splitcpy.splitcpy.establish_ssh_cred',
-       return_value=(None, {'version': 0.3,
+       return_value=(None, {'version': splitcpy.__version__,
                             'entries': [[None, None, None, 'f1']]}))
 @patch('splitcpy.splitcpy.dl_file')
 def test_dest_dir(dl_file, cred, testdir):
