@@ -78,3 +78,43 @@ def test_dest_dir(dl_file, cred, testdir):
     dl_file.assert_called_with('user@host:remotefile',
                                os.path.join(testdir, 'f1'),
                                5, 20, None, 22)
+
+@pytest.fixture
+def save_vers(request):
+    low = splitcpy.splitcpy.__VER_DL_MIN__
+    high = splitcpy.splitcpy.__VER_DL_MAX__
+
+    def fin():
+        splitcpy.splitcpy.__VER_DL_MIN__ = low
+        splitcpy.splitcpy.__VER_DL_MAX__ = high
+
+    request.addfinalizer(fin)
+
+    return None
+
+
+@pytest.mark.parametrize("low, high, rval", [
+    ("0.0", "100.100", 0),
+    ("0.0", "0.0", 1),
+    ("100.0", "100.100", 1),
+])
+@patch('splitcpy.splitcpy.dl_file')
+@patch('splitcpy.splitcpy.establish_ssh_cred',
+       return_value=(None, {'version': splitcpy.__version__,
+                            'entries': [[None, None, None, 'f1']]}))
+@patch('splitcpy.splitcpy.sys.exit')
+def test_ver_check_dl(exit, cred, dl_file, low, high, rval, save_vers):
+
+    splitcpy.splitcpy.__VER_DL_MIN__ = low
+    splitcpy.splitcpy.__VER_DL_MAX__ = high
+
+
+    cmd = "-n 5 -b 20 user@host:remotefile localfile"
+    splitcpy.splitcpy.main(cmd.split())
+
+    if rval:
+        assert exit.called
+        assert exit.call_args[0][0] == rval
+        assert isinstance(exit.call_args[0][0], int)
+    else:
+        assert not exit.called
