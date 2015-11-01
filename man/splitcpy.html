@@ -1,5 +1,5 @@
 <!-- Creator     : groff version 1.22.3 -->
-<!-- CreationDate: Sat Sep 19 22:13:24 2015 -->
+<!-- CreationDate: Sun Nov  1 13:52:39 2015 -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -41,24 +41,46 @@ streams</p>
 
 
 <p style="margin-left:11%; margin-top: 1em">usage: splitcpy
-[&minus;h] [&minus;s n,i,l] [&minus;p port] [&minus;n num]
-[&minus;b bytes]</p>
+[user]@host:path [path]</p>
 
-<p style="margin-left:22%; margin-top: 1em">srcfile
-[destfile]</p>
+<p style="margin-left:22%; margin-top: 1em">splitcpy
+[user]@host:path [...] [dir]</p>
 
 <p style="margin-left:11%; margin-top: 1em">Copy a remote
 file using multiple SSH streams.</p>
 
 <p style="margin-left:11%; margin-top: 1em"><b>positional
-arguments:</b> <br>
-srcfile</p>
+arguments:</b></p>
 
-<p style="margin-left:22%;">Source file</p>
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="6%">
 
-<p style="margin-left:11%;">destfile</p>
 
-<p style="margin-left:22%;">Destination file</p>
+<p>path</p></td>
+<td width="5%"></td>
+<td width="75%">
+
+
+<p>filename, with optional path</p></td>
+<td width="3%">
+</td></tr>
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="6%">
+
+
+<p>dir</p></td>
+<td width="5%"></td>
+<td width="75%">
+
+
+<p>directory name (file name taken from source path)</p></td>
+<td width="3%">
+</td></tr>
+</table>
 
 <p style="margin-left:11%; margin-top: 1em"><b>optional
 arguments: <br>
@@ -72,6 +94,22 @@ exit</p>
 <p style="margin-left:22%;">(internal use only) Generate
 file interleave of &rsquo;l&rsquo; bytes for the
 &rsquo;i&rsquo;th slice out of &rsquo;n&rsquo;</p>
+
+<table width="100%" border="0" rules="none" frame="void"
+       cellspacing="0" cellpadding="0">
+<tr valign="top" align="left">
+<td width="11%"></td>
+<td width="3%">
+
+
+<p><b>&minus;f</b></p></td>
+<td width="8%"></td>
+<td width="78%">
+
+
+<p>(internal use only) Output far&minus;side wildcard
+information</p> </td></tr>
+</table>
 
 <p style="margin-left:11%;"><b>&minus;p</b> port</p>
 
@@ -102,7 +140,8 @@ default)</p>
 
 <p style="margin-left:11%; margin-top: 1em">The source file
 is remote. Remote files are specified as e.g.
-user@host:path</p>
+[user@]host:path. &rsquo;splitcpy&rsquo; must be installed
+on both the local and remote hosts.</p>
 <hr>
 </body>
 </html>

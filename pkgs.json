@@ -1,9 +1,10 @@
 {
     "all_pkgs": [
+        "splitcpy_1.0-1_all.deb", 
         "splitcpy_0.3-2_all.deb", 
         "splitcpy_0.3-1_all.deb"
     ], 
     "latest_pkgs": [
-        "splitcpy_0.3-2_all.deb"
+        "splitcpy_1.0-1_all.deb"
     ]
 }
