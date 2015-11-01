@@ -203,11 +203,11 @@ def establish_ssh_cred(user, host, port, pathlist):
         match = session.expect(options)
 
         if match == 0:
-            password = getpass.getpass(session.before + 'password:')
+            password = getpass.getpass(session.before.decode() + 'password:')
             session.sendline(password)
         elif match == 1:
             # get the json in the ouput
-            text = session.before + session.after
+            text = session.before.decode() + session.after.decode()
             m = re.search("^.*?(\{.+\}).*?$", text, re.DOTALL)
             remote_info = json.loads(m.group(1))
 
