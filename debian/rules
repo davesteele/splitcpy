@@ -45,6 +45,7 @@ override_dh_auto_clean:
 	rm -rf .tox
 	rm -rf .coverage
 	rm -rf htmlcov
+	rm -rf dist
 
 .PHONY get-orig-source:
 get-orig-source:  $(info I: $(PKG)_$(VER))
