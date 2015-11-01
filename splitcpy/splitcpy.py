@@ -29,6 +29,12 @@ import shutil
 import uuid
 import time
 import tempfile
+import glob
+import json
+
+from collections import namedtuple
+from distutils.version import LooseVersion
+
 
 """
 Copy file over split multiple SSH streams
@@ -48,17 +54,27 @@ Main entry points:
 
 def parse_net_spec(spec):
     """Parse user@host:path into user, host, path"""
-    m = re.search('^(.+?)@(.+?):(.+)$', spec)
 
-    if m:
-        return tuple([m.group(x) for x in range(1, 4)])
+    PathSpec = namedtuple('PathSpec', "user, host, path")
+
+    fullre = re.search('^(.+?)@(.+?):(.+)$', spec)
+    smallre = re.search('^(.+?):(.+)$', spec)
+
+    values = None
+    if fullre:
+        values = [fullre.group(x) for x in range(1, 4)]
+    elif smallre:
+        user = getpass.getuser()
+        values = [user] + [smallre.group(x) for x in range(1, 3)]
     else:
-        return (None, None, spec)
+        values = None, None, spec
+
+    return PathSpec(*values)
 
 
 def is_net_spec(spec):
     """Is the path spec of the form user@host:path?"""
-    return parse_net_spec(spec)[0] is not None
+    return parse_net_spec(spec).user is not None
 
 
 def slice_iter(fp, num_slices, slice_num, bytes):
@@ -97,15 +113,15 @@ def del_fifo(path):
 def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
     """Call a remote interleave slice of a file to download"""
 
-    user, host, src_file = parse_net_spec(src_spec)
+    ns = parse_net_spec(src_spec)
     p = fifo_path = None
 
     try:
         fifo_path = make_fifo()
 
-        spltcmd = "splitcpy %s -s %d,%d,%d" % (src_file, num_slices,
+        spltcmd = "splitcpy %s -s %d,%d,%d" % (ns.path, num_slices,
                                                slice, bytes)
-        sshcmd = "ssh -p %d %s@%s %s >%s" % (port, user, host, spltcmd,
+        sshcmd = "ssh -p %d %s@%s %s >%s" % (port, ns.user, ns.host, spltcmd,
                                              fifo_path)
 
         if pw is not None:
@@ -168,47 +184,93 @@ class CredException(Exception):
     pass
 
 
-def establish_ssh_cred(user, host, port, needed_script='splitcpy'):
+def establish_ssh_cred(user, host, port, pathlist):
     """Make a test ssh connection to determine the password, if needed"""
 
-    cmd = 'ssh -p %d %s@%s which %s' % (port, user, host, needed_script)
+    quotedlist = ['"' + x + '"' for x in pathlist]
+    remote_cmd = "splitcpy -f " + " ".join(quotedlist)
+    cmd = "ssh -p %d %s@%s " % (port, user, host)
+    cmd += remote_cmd
     password = None
 
     session = pexpect.spawn(cmd)
     while True:
-        options = ['password:', needed_script, pexpect.EOF, pexpect.TIMEOUT]
+        options = [
+            'password: ', '}', pexpect.EOF, pexpect.TIMEOUT,
+            'fingerprint',
+        ]
+
         match = session.expect(options)
 
         if match == 0:
             password = getpass.getpass(session.before + 'password:')
             session.sendline(password)
         elif match == 1:
+            # get the json in the ouput
+            text = session.before + session.after
+            m = re.search("^.*?(\{.+\}).*?$", text, re.DOTALL)
+            remote_info = json.loads(m.group(1))
+
             session.close()
-            return password
+
+            return password, remote_info
         elif match == 2:
             raise CredException
         elif match == 3:
             raise CredException
+        elif match == 4:
+            raise CredException
+
+
+def eval_files(flist):
+    info = {
+                'version': __version__,     # flake8: noqa
+                'entries': [],
+           }
+
+    for spec in flist:
+        for entry in glob.glob(spec):
+            type = 'f'
+            if os.path.isdir(entry):
+                type = 'd'
+
+            readable = os.access(entry, os.R_OK)
+            writeable = os.access(entry, os.W_OK)
+
+            info['entries'].append([type, readable, writeable, entry])
+
+    return info
 
 
 def parse_args(args):
     """Return an argparse args object"""
     parser = argparse.ArgumentParser(
+                usage="%(prog)s [user]@host:path [path]\n"
+                      "       %(prog)s [user]@host:path [...] [dir]",
                 description='Copy a remote file using multiple SSH streams.',
                 epilog="The source file is remote. " +
-                       "Remote files are specified as e.g. user@host:path",
+                       "Remote files are specified as e.g. [user@]host:path. "
+                       "'splitcpy' must be installed on both the local and "
+                       "remote hosts.",
             )
 
     parser.add_argument(
-        'srcfile',
-        help="Source file",
+        'fileargs',
+        nargs='*',
+        help=argparse.SUPPRESS,
+        )
+
+    # 'path' and 'dir' only add help text - no arguments are parsed
+    parser.add_argument(
+        'path',
+        nargs='?',
+        help="filename, with optional path",
         )
 
     parser.add_argument(
-        'destfile',
+        'dir',
         nargs='?',
-        default='',
-        help="Destination file",
+        help="directory name (file name taken from source path)",
         )
 
     parser.add_argument(
@@ -216,6 +278,12 @@ def parse_args(args):
         metavar='n,i,l',
         help="(internal use only) Generate file interleave of 'l'\
         bytes for the 'i'th slice out of 'n'",
+        )
+
+    parser.add_argument(
+        '-f',
+        action='store_true',
+        help="(internal use only) Output far-side wildcard information",
         )
 
     parser.add_argument(
@@ -247,57 +315,107 @@ def parse_args(args):
 
     args = parser.parse_args(args)
 
-    try:
-        params = args.s.split(',')
-        assert(len(params) == 3)
-
-        setattr(args, 'num_slices', int(params[0]))
-        setattr(args, 'slice', int(params[1]))
-        setattr(args, 'bytes', int(params[2]))
-
-        assert(args.bytes > 0)
-        assert(args.slice >= 0)
-        assert(args.num_slices > 0)
-        assert(args.num_slices > args.slice)
-    except AttributeError:
-        pass
-    except (IndexError, ValueError, AssertionError):
-        parser.error("Invalid interleave argument")
-
-    if not args.s and (not is_net_spec(args.srcfile) or
-                       is_net_spec(args.destfile)):
-        parser.error("Currently only supports download copying")
-
-    if not args.s and (is_net_spec(args.srcfile) and
-                       is_net_spec(args.destfile)):
-        parser.error("Either source or destination must be local")
-
-    if not args.s and (not is_net_spec(args.srcfile) and
-                       not is_net_spec(args.destfile)):
-        parser.error("Either source or destination must be remote")
-
-    if not args.s and not args.destfile:
-        args.destfile = parse_net_spec(args.srcfile)[2].split('/')[-1]
+    msg = validate_args(args)
+    if msg:
+        parser.error(msg)
 
     return(args)
+
+
+def validate_args(args):
+
+    if args.s:
+        try:
+            params = args.s.split(',')
+            assert(len(params) == 3)
+
+            setattr(args, 'num_slices', int(params[0]))
+            setattr(args, 'slice', int(params[1]))
+            setattr(args, 'bytes', int(params[2]))
+
+            assert(args.bytes > 0)
+            assert(args.slice >= 0)
+            assert(args.num_slices > 0)
+            assert(args.num_slices > args.slice)
+        except (IndexError, ValueError, AssertionError):
+            return "Invalid interleave argument"
+
+    elif args.f:
+        pass
+
+    else:
+        if len(args.fileargs) == 0:
+            return "No files specified"
+
+        if not is_net_spec(args.fileargs[0]):
+            return "Currently only supports download copying"
+
+        proclist = list(args.fileargs)
+        args.rawsrcs = []
+        while proclist and \
+                is_net_spec(proclist[0]) == is_net_spec(args.fileargs[0]):
+            args.rawsrcs.append(proclist.pop(0))
+
+        if len(proclist) == 0:
+            args.rawdest = '.'
+        elif len(proclist) == 1:
+            args.rawdest = proclist[0]
+        else:
+            return "Malformed argument list"
+
+        first_ns = parse_net_spec(args.rawsrcs[0])
+        for src in args.rawsrcs:
+            src_ns = parse_net_spec(src)
+            if first_ns.user != src_ns.user or first_ns.host != src_ns.host:
+                return "The user and host must be the same for all files"
+
+    return None
 
 
 def main(args=sys.argv[1:]):
     args = parse_args(args)
 
-    if args.s:
+    if args.s:                      # download - remote side
         outfp = sys.stdout
         if sys.version_info >= (3, 0):
             outfp = sys.stdout.buffer
 
-        output_split(args.srcfile, args.num_slices, args.slice, args.bytes,
+        output_split(args.fileargs[0], args.num_slices, args.slice, args.bytes,
                      outfp)
-    else:
+
+    elif args.f:                    # establish password, remote side
+        info = eval_files(args.fileargs)
+
+        print(json.dumps(info, indent=2, separators=(',',':')))
+
+    else:                           # download - local side
         try:
-            user, host, path = parse_net_spec(args.srcfile)
-            password = establish_ssh_cred(user, host, args.port)
-            dl_file(args.srcfile, args.destfile, args.num_slices,
-                    args.slice_size, password, args.port)
+            ns = parse_net_spec(args.rawsrcs[0])
+            localized_srcs = [parse_net_spec(x).path for x in args.rawsrcs]
+            password, remote_info = establish_ssh_cred(ns.user, ns.host,
+                                                       args.port,
+                                                       localized_srcs)
+
+            remote_ver = remote_info['version']
+            if LooseVersion(remote_ver) < LooseVersion(__VER_DL_MIN__):
+                print("Remote splitcpy is too old")
+                sys.exit(1)
+
+            if LooseVersion(remote_ver) > LooseVersion(__VER_DL_MAX__):
+                print("Remote splitcpy is too new - upgrade local copy")
+                sys.exit(1)
+
+            for src in remote_info['entries']:
+                srcfile = src[3]
+                path = parse_net_spec(srcfile).path
+
+                dest = args.rawdest
+                if os.path.isdir(dest):
+                    dest = os.path.join(dest, os.path.basename(path))
+
+                dl_file(args.rawsrcs[0], dest, args.num_slices,
+                      args.slice_size, password, args.port)
+
         except CredException:
             print("Error establishing contact with remote splitcpy")
             sys.exit(-1)

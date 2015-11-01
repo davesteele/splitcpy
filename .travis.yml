@@ -1,13 +1,17 @@
 sudo: false
 language: python
-cache: pip
+cache:
+    directories:
+        - $HOME/.cache/pip
 python:
-  - "2.6"
   - "2.7"
-  - "3.3"
   - "3.4"
-  - "pypy"
+  - "3.5"
   - "pypy3"
 addons:
-install: pip install tox-travis pytest pexpect mock
-script: tox
+install:
+  - pip install tox-travis pytest pexpect mock coveralls
+script:
+  tox
+after_success:
+  coveralls

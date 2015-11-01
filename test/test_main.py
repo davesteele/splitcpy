@@ -2,21 +2,27 @@
 
 import splitcpy
 from mock import patch
+import subprocess
+import pytest
+import tempfile
+import os
+import shutil
 
 
-def test_main_local_dl():
+@patch('splitcpy.splitcpy.establish_ssh_cred',
+       return_value=(None, {'version': splitcpy.__version__,
+                            'entries': [[None, None, None, 'f1']]}))
+@patch('splitcpy.splitcpy.dl_file')
+def test_main_local_dl(dl_file, cred):
 
-    with patch('splitcpy.splitcpy.establish_ssh_cred',
-               return_value=None) as cred:
-        with patch('splitcpy.splitcpy.dl_file') as dl_file:
-            cmd = "-n 5 -b 20 user@host:remotefile localfile"
-            splitcpy.splitcpy.main(cmd.split())
+    cmd = "-n 5 -b 20 user@host:remotefile localfile"
+    splitcpy.splitcpy.main(cmd.split())
 
-            assert dl_file.called
-            dl_file.assert_called_with('user@host:remotefile',
-                                       'localfile', 5, 20, None, 22)
-            assert cred.calld
-            cred.assert_called_with('user', 'host', 22)
+    assert dl_file.called
+    dl_file.assert_called_with('user@host:remotefile',
+                               'localfile', 5, 20, None, 22)
+    assert cred.called
+    cred.assert_called_with('user', 'host', 22, ['remotefile'])
 
 
 def test_main_remote_dl():
@@ -25,3 +31,90 @@ def test_main_remote_dl():
 
         assert output_split.called
 #        output_split.assert_called_with('localfile', 1, 0, 10000)
+
+
+@patch('splitcpy.splitcpy.establish_ssh_cred',
+       side_effect=splitcpy.splitcpy.CredException)
+@patch('splitcpy.splitcpy.sys.exit')
+def test_main_cred_excep(exit, establish_cred):
+    cmd = "-n 5 -b 20 user@host:remotefile localfile"
+    splitcpy.splitcpy.main(cmd.split())
+
+    assert exit.called
+    assert exit.call_args[0][0] != 0
+    assert isinstance(exit.call_args[0][0], int)
+
+
+def test_that_last_line():
+    path = splitcpy.__path__[0]
+    cmd = "python %s/splitcpy.py -h" % path
+
+    p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
+    (out, err) = p.communicate()
+
+    assert "usage:" in out.decode()
+
+
+@pytest.fixture
+def testdir(request):
+    dir = tempfile.mkdtemp()
+
+    def fin():
+        shutil.rmtree(dir)
+
+    request.addfinalizer(fin)
+
+    return dir
+
+
+@patch('splitcpy.splitcpy.establish_ssh_cred',
+       return_value=(None, {'version': splitcpy.__version__,
+                            'entries': [[None, None, None, 'f1']]}))
+@patch('splitcpy.splitcpy.dl_file')
+def test_dest_dir(dl_file, cred, testdir):
+    cmd = "-n 5 -b 20 user@host:remotefile " + testdir
+    splitcpy.splitcpy.main(cmd.split())
+
+    dl_file.assert_called_with('user@host:remotefile',
+                               os.path.join(testdir, 'f1'),
+                               5, 20, None, 22)
+
+@pytest.fixture
+def save_vers(request):
+    low = splitcpy.splitcpy.__VER_DL_MIN__
+    high = splitcpy.splitcpy.__VER_DL_MAX__
+
+    def fin():
+        splitcpy.splitcpy.__VER_DL_MIN__ = low
+        splitcpy.splitcpy.__VER_DL_MAX__ = high
+
+    request.addfinalizer(fin)
+
+    return None
+
+
+@pytest.mark.parametrize("low, high, rval", [
+    ("0.0", "100.100", 0),
+    ("0.0", "0.0", 1),
+    ("100.0", "100.100", 1),
+])
+@patch('splitcpy.splitcpy.dl_file')
+@patch('splitcpy.splitcpy.establish_ssh_cred',
+       return_value=(None, {'version': splitcpy.__version__,
+                            'entries': [[None, None, None, 'f1']]}))
+@patch('splitcpy.splitcpy.sys.exit')
+def test_ver_check_dl(exit, cred, dl_file, low, high, rval, save_vers):
+
+    splitcpy.splitcpy.__VER_DL_MIN__ = low
+    splitcpy.splitcpy.__VER_DL_MAX__ = high
+
+
+    cmd = "-n 5 -b 20 user@host:remotefile localfile"
+    splitcpy.splitcpy.main(cmd.split())
+
+    if rval:
+        assert exit.called
+        assert exit.call_args[0][0] == rval
+        assert isinstance(exit.call_args[0][0], int)
+    else:
+        assert not exit.called

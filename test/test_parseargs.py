@@ -3,17 +3,21 @@
 import splitcpy
 import pytest
 from mock import patch
+import getpass
 
 
 @pytest.mark.parametrize("cmdstr", [
     "localfile localfile",
     "localfile user@host:remotefile",
-    "user@host:remotefile user@host:remotefile",
+    "u1@h:path u2@h:path",
+    "u@h1:path u@h2:path",
     "-s 1 user@host:remotefile",
     "-s 1,1 user@host:remotefile",
     "-s 1,1,1 user@host:remotefile",
     "-s 1,0,0 user@host:remotefile",
     "-s 0,0,1 user@host:remotefile",
+    "",
+    "u@h:p localfile localdest",
 ])
 def test_parse_exception(cmdstr):
     with patch('splitcpy.splitcpy.sys.exit') as exit_mock:
@@ -23,21 +27,24 @@ def test_parse_exception(cmdstr):
         assert isinstance(exit_mock.call_args[0][0], int)
 
 
-@pytest.mark.parametrize("cmdstr", [
-    "user@host:remotefile",
-    "user@host:remotefile remotefile",
+@pytest.mark.parametrize("cmdstr, srclist, dest", [
+    ("h:f1", ['h:f1'], '.'),
+    ("h:f1 dest", ['h:f1'], 'dest'),
+    ("h:f1 h:f2", ['h:f1', 'h:f2'], '.'),
+    ("h:f1 h:f2 dest", ['h:f1', 'h:f2'], 'dest'),
 ])
-def test_parse_fileargs(cmdstr):
-    with patch('splitcpy.splitcpy.sys.exit') as exit_mock:
-        args = splitcpy.splitcpy.parse_args(cmdstr.split())
-        assert not exit_mock.called
-        assert args.srcfile == "user@host:remotefile"
-        assert args.destfile == "remotefile"
+@patch('splitcpy.splitcpy.sys.exit')
+def test_parse_fileargs(exit_mock, cmdstr, srclist, dest):
+    args = splitcpy.splitcpy.parse_args(cmdstr.split())
+
+    assert not exit_mock.called
+    assert(args.rawsrcs == srclist)
+    assert(args.rawdest == dest)
 
 
 @pytest.mark.parametrize(("spec", "user", "host", "path", "isnet"), [
     ("user@host:path", "user", "host", "path", True),
-    ("host:path", None, None, "host:path", False),
+    ("host:path", getpass.getuser(), "host", "path", True),
     ("user@host", None, None, "user@host", False),
     ("path", None, None, "path", False),
 ])
