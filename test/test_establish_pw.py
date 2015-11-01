@@ -8,8 +8,8 @@ def pexpect_session(val):
     sessionmock = Mock()
     sessionmock.expect.side_effect = val
     sessionmock.sendline.return_value = None
-    sessionmock.before = 'foo {"'
-    sessionmock.after = '": 0.3, "entries": ["f1", "f2"]} bar'
+    sessionmock.before = b'foo {"'
+    sessionmock.after = b'": 0.3, "entries": ["f1", "f2"]} bar'
 
     return sessionmock
 
