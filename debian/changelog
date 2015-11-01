@@ -1,4 +1,4 @@
-splitcpy (1.0-1) UNRELEASED; urgency=low
+splitcpy (1.0-1) unstable; urgency=low
 
   * Wildcard support for downloads.
   * Support for multiple source files.
@@ -8,13 +8,13 @@ splitcpy (1.0-1) UNRELEASED; urgency=low
 
  -- David Steele <dsteele@gmail.com>  Sun, 01 Nov 2015 11:32:29 -0500
 
-splitcpy (0.3-2) unstable; urgency=low
+splitcpy (0.3-2) UNRELEASED; urgency=low
 
   * Add missing dependency on python3-pkg-resources.
 
  -- David Steele <dsteele@gmail.com>  Sat, 19 Sep 2015 21:41:30 -0400
 
-splitcpy (0.3-1) unstable; urgency=low
+splitcpy (0.3-1) UNRELEASED; urgency=low
 
   * New version due to PyPi restrictions.
   * Still Closes: #796581
