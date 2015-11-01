@@ -9,9 +9,9 @@ Priority: optional
 Section: net
 Filename: pool/main/s/splitcpy/splitcpy_1.0-1_all.deb
 Size: 8124
-SHA256: a867d38265462fc110b03b80a17bdd39e45211389a8b2b8755f963d718c2ea37
-SHA1: 86f71e3faaf6c3eb887329fdf02cace4d6499e9e
-MD5sum: 51f2abd7698450febdb82c3464ed56f2
+SHA256: 4a8fd3dab69cc259181e33afd615c27b3c1e6f707ad3574356a35a20c20e1873
+SHA1: 4aec1e44b6e36dda6bceb9540ce7d764d553810a
+MD5sum: 64b5c295308aa281365ffb5c4b3186d2
 Description: Copy a remote file using multiple SSH streams
  splitcpy can be used to exchange files with remote systems over multiple
  parallel SSH sessions. This can circumvent bandwidth restrictions

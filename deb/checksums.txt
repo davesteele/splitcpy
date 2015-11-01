@@ -4,32 +4,32 @@ Hash: SHA256
 MD5Sum
 501c2d62a05bc9dc7e1cb91ab867e24a  splitcpy_0.3-1_all.deb
 456decd09aeddc79fd35c89e8d96db8f  splitcpy_0.3-2_all.deb
-51f2abd7698450febdb82c3464ed56f2  splitcpy_1.0-1_all.deb
+64b5c295308aa281365ffb5c4b3186d2  splitcpy_1.0-1_all.deb
 
 SHA1
 29222f3f297e1fbb6d08754ce835b00bae8df3a5  splitcpy_0.3-1_all.deb
 c07b973fa0282f71ddd48cdfd4316ad437b3a84d  splitcpy_0.3-2_all.deb
-86f71e3faaf6c3eb887329fdf02cace4d6499e9e  splitcpy_1.0-1_all.deb
+4aec1e44b6e36dda6bceb9540ce7d764d553810a  splitcpy_1.0-1_all.deb
 
 SHA256
 159b654ba383e5b8f44d2ae12bb06923a0a7f724ef7981deae8f34102d9d7f20  splitcpy_0.3-1_all.deb
 9548e4b9defe313b4eebcac378eab9e16daef8afbdde9728c569a66470bcf714  splitcpy_0.3-2_all.deb
-a867d38265462fc110b03b80a17bdd39e45211389a8b2b8755f963d718c2ea37  splitcpy_1.0-1_all.deb
+4a8fd3dab69cc259181e33afd615c27b3c1e6f707ad3574356a35a20c20e1873  splitcpy_1.0-1_all.deb
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iQIcBAEBCAAGBQJWNl9wAAoJEGJ+uykKgXqCgVQQAKaLJb3luXq2SPoB7WdCuApa
-0FqLAIPOz4q/lJ6bP/l/GDmqI+Gtp5wE8wcl8isrsMnHbRyX2TBD0twVF1U4/Fom
-M6rNWdmsbbDD4q6M3vtZYtdEDwpRJuCBCTkbU1vmvsJ0wBTA9pRJ3pAyIiIhxAgf
-DyE1O3siYQugR0f91TCevy0STHzGGBp+4oGEskhev9FW2MyPlns3NNbuGtCbJR23
-MkU2DSy5yOH4KuCqAqdpiT63//r/5asXLiw0C/ZD4Q1r4nzy4+sMfF82DnYT+gZm
-mjrMqPyrOWj0nJYOEz/44gsfYOXejg3qBrPSrX2AUgibLTchUF2RsFktZuNjQFH+
-TIMoDZ+q8NFzQcYflO5qtuNsug9vLQFABUqC+8H0jMYEkiJqcqGtfoNLMNOA/gDC
-Db/8zr6Eklu/SbvjNwsWG5TmoypqCjux7HjAYpr7oFiZiuGqhooG5c9u3JbW9B3U
-slwqH/pJ22HCMZYgGTuNugbi4JvwbRelhKtjdMcWASZIVDAdJHIOdl+/8iZX6dXP
-yk2WJqt+r8k4dK68Tg9WdcYqZa36afA/GWBA+imw6VFGZPy9N1Lvb23WK+VD524S
-DsxHcP8ovA8IKhvrWkyUZtv8vp2OMg+uv+u8Eh4EaBfyBWIe818N7f9knfVxtbq1
-ICnJGL9ZQlMi9qTals9B
-=0BrQ
+iQIcBAEBCAAGBQJWNojtAAoJEGJ+uykKgXqCWXcP/AgKV6QPlip9SqubQE7/j0ZC
+6M3xpoXKSgYFSledhgjIcTqwpbhQ37eynw406ijIH3vhXhiBnklJte+YRescMI2i
+BEVKVtG1H0oJJE6V4pevZRPDBm53q9la5lUuvmu4mz1dAwxe5lEmkYhOA58ZfveH
+B9rRxo3yqEToJ9xt+FmK68mMdpa6rzbDmrWYJ/EWojDa58691ezWUlxsiW6++JDP
+hVqM6/ldfTAtwvqxw9iprIdtYq94YBlfhdRw/gfclAa+VnkpUwy4zcd7ZO2oArox
+LQncNU+ZZcKyDf75V9lwpO3w74UH+6pKjqaVH6dhfFEOi+c9Tb9/GmOfOPhkeMYh
+hOVHVtskNH/Ror5GBEOdGYWiNaxn3O3NFFD1lQuZ7zVzi8kXyHPyBlC/uhXIdPTg
+4EJZ8udPqme2gpZHqKqqPjjV6yReG0c719xuaagYys73aAU/3khIgNJKU4NrzS2D
+Vw/McWXK+HYQNSNsYW+kCVOU8AR1tBWwMI2G+wSD5IC57OTeHVFyu3UGyc/uYgGK
+Et9M0Zx/lURSR244EAXlv5v5n59quBSeP9kEzOWu291Rq/UvRmyM+5Baju8UjT0S
+gJ7+aPz1FfKR4AQPFsUKjJHOBNouiSu6OtVRVqmWpZ2fxUMhC5FioMEMhJrYy8UO
+fRWY+IfMNo4SPeHrBAT0
+=OCN+
 -----END PGP SIGNATURE-----
