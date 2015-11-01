@@ -23,6 +23,7 @@ def pexpect_session(val):
     ((0, 2),    True,  0, None),
     ((0, 3),    True,  0, None),
     ((3,),      True,  0, None),
+    ((4,),      True,  0, None),
 ])
 def test_get_pw(getpass, pexpect, val, cept, sendlines, tpw):
 
