@@ -245,8 +245,9 @@ def eval_files(flist):
 def parse_args(args):
     """Return an argparse args object"""
     parser = argparse.ArgumentParser(
-                usage="%(prog)s [user]@host:path [path]\n"
-                      "       %(prog)s [user]@host:path [...] [dir]",
+                usage="%(prog)s -h\n"
+                      "       %(prog)s [options] [user]@host:path [path]\n"
+                      "       %(prog)s [options] [user]@host:path [...] [dir]",
                 description='Copy a remote file using multiple SSH streams.',
                 epilog="The source file is remote. " +
                        "Remote files are specified as e.g. [user@]host:path. "
