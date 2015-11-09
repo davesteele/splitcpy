@@ -42,10 +42,7 @@ def testdir(request):
     touch(os.path.join(dir, 'noread'), readable=False)
     touch(os.path.join(dir, 'nowrite'), writeable=False)
 
-    def fin():
-        shutil.rmtree(dir)
-
-    request.addfinalizer(fin)
+    request.addfinalizer(lambda : shutil.rmtree(dir))
 
     return dir
 

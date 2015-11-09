@@ -17,10 +17,7 @@ def testfile(request):
     with open(path, 'wb') as fp:
         fp.write(data)
 
-    def fin():
-        os.unlink(path)
-
-    request.addfinalizer(fin)
+    request.addfinalizer(lambda : os.unlink(path))
 
     return path
 
