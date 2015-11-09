@@ -10,11 +10,9 @@ import splitcpy
 @pytest.fixture()
 def testfile(request):
 
-    data = bytearray(range(256))
-
     (fd, path) = tempfile.mkstemp()
     with open(path, 'wb') as fp:
-        fp.write(data)
+        fp.write(bytearray(range(256)))
 
     request.addfinalizer(lambda : os.unlink(path))
 

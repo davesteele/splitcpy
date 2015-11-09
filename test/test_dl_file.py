@@ -13,9 +13,8 @@ def testfile(request):
 
     (fd, path) = tempfile.mkstemp()
 
-    data = bytearray(range(256))
     with open(path, 'wb') as fp:
-        fp.write(data)
+        fp.write(bytearray(range(256)))
 
     request.addfinalizer(lambda : os.unlink(path))
 

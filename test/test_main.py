@@ -76,19 +76,6 @@ def test_dest_dir(dl_file, cred, testdir):
                                os.path.join(testdir, 'f1'),
                                5, 20, None, 22)
 
-@pytest.fixture
-def save_vers(request):
-    low = splitcpy.splitcpy.__VER_DL_MIN__
-    high = splitcpy.splitcpy.__VER_DL_MAX__
-
-    def fin():
-        splitcpy.splitcpy.__VER_DL_MIN__ = low
-        splitcpy.splitcpy.__VER_DL_MAX__ = high
-
-    request.addfinalizer(fin)
-
-    return None
-
 
 @pytest.mark.parametrize("low, high, rval", [
     ("0.0", "100.100", 0),
@@ -100,11 +87,10 @@ def save_vers(request):
        return_value=(None, {'version': splitcpy.__version__,
                             'entries': [[None, None, None, 'f1']]}))
 @patch('splitcpy.splitcpy.sys.exit')
-def test_ver_check_dl(exit, cred, dl_file, low, high, rval, save_vers):
+def test_ver_check_dl(exit, cred, dl_file, low, high, rval, monkeypatch):
 
-    splitcpy.splitcpy.__VER_DL_MIN__ = low
-    splitcpy.splitcpy.__VER_DL_MAX__ = high
-
+    monkeypatch.setattr(splitcpy.splitcpy, "__VER_DL_MIN__", low)
+    monkeypatch.setattr(splitcpy.splitcpy, "__VER_DL_MAX__", high)
 
     cmd = "-n 5 -b 20 user@host:remotefile localfile"
     splitcpy.splitcpy.main(cmd.split())

@@ -19,12 +19,12 @@ import getpass
     "",
     "u@h:p localfile localdest",
 ])
-def test_parse_exception(cmdstr):
-    with patch('splitcpy.splitcpy.sys.exit') as exit_mock:
-        splitcpy.splitcpy.parse_args(cmdstr.split())
-        assert exit_mock.called
-        assert exit_mock.call_args[0][0] != 0
-        assert isinstance(exit_mock.call_args[0][0], int)
+@patch('splitcpy.splitcpy.sys.exit')
+def test_parse_exception(exit_mock, cmdstr):
+    splitcpy.splitcpy.parse_args(cmdstr.split())
+    assert exit_mock.called
+    assert exit_mock.call_args[0][0] != 0
+    assert isinstance(exit_mock.call_args[0][0], int)
 
 
 @pytest.mark.parametrize("cmdstr, srclist, dest", [
