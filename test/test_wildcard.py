@@ -65,7 +65,7 @@ def test_eval_version():
 
 
 @pytest.mark.parametrize("spec, type", [
-    ('adir', 'd'),
+    ('adir',   'd'),
     ('noread', 'f'),
 ])
 def test_eval_type(testdir, spec, type):
@@ -78,18 +78,18 @@ def test_eval_type(testdir, spec, type):
     assert(fspec.type == type)
 
 
-@pytest.mark.parametrize("wildcards, num, expected", [
-    ('*/*', 3, ['one.txt', 'two', 'one.doc']),
-    ('*/one*', 2, ['one.txt', 'one.doc']),
-    ('*/three*', 0, []),
+@pytest.mark.parametrize("wildcards, expected", [
+    ('*/*',      ['one.txt', 'two', 'one.doc']),
+    ('*/one*',   ['one.txt', 'one.doc']),
+    ('*/three*', []),
 ])
-def test_eval_wildcard(testdir, wildcards, num, expected):
+def test_eval_wildcard(testdir, wildcards, expected):
 
     fullwild = [os.path.join(testdir, x) for x in wildcards.split()]
 
     info = splitcpy.splitcpy.eval_files(fullwild)
 
-    assert(len(info['entries']) == num)
+    assert(len(info['entries']) == len(expected))
 
     entries = [FSpec(*x) for x in info['entries']]
     for entry in entries:
@@ -97,9 +97,9 @@ def test_eval_wildcard(testdir, wildcards, num, expected):
 
 
 @pytest.mark.parametrize("spec, readable, writeable", [
-    ('noread', False, True),
-    ('nowrite', True, False),
-    ('adir', True, True),
+    ('noread',  False, True),
+    ('nowrite', True,  False),
+    ('adir',    True,  True),
 ])
 def test_eval_perms(testdir, spec, readable, writeable):
 

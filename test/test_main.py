@@ -78,8 +78,8 @@ def test_dest_dir(dl_file, cred, testdir):
 
 
 @pytest.mark.parametrize("low, high, rval", [
-    ("0.0", "100.100", 0),
-    ("0.0", "0.0", 1),
+    ("0.0",   "100.100", 0),
+    ("0.0",   "0.0",     1),
     ("100.0", "100.100", 1),
 ])
 @patch('splitcpy.splitcpy.dl_file')

@@ -28,9 +28,9 @@ def test_parse_exception(exit_mock, cmdstr):
 
 
 @pytest.mark.parametrize("cmdstr, srclist, dest", [
-    ("h:f1", ['h:f1'], '.'),
-    ("h:f1 dest", ['h:f1'], 'dest'),
-    ("h:f1 h:f2", ['h:f1', 'h:f2'], '.'),
+    ("h:f1",           ['h:f1'],         '.'),
+    ("h:f1 dest",      ['h:f1'],         'dest'),
+    ("h:f1 h:f2",      ['h:f1', 'h:f2'], '.'),
     ("h:f1 h:f2 dest", ['h:f1', 'h:f2'], 'dest'),
 ])
 @patch('splitcpy.splitcpy.sys.exit')
@@ -42,12 +42,16 @@ def test_parse_fileargs(exit_mock, cmdstr, srclist, dest):
     assert(args.rawdest == dest)
 
 
-@pytest.mark.parametrize(("spec", "user", "host", "path", "isnet"), [
-    ("user@host:path", "user", "host", "path", True),
-    ("host:path", getpass.getuser(), "host", "path", True),
-    ("user@host", None, None, "user@host", False),
-    ("path", None, None, "path", False),
+@pytest.mark.parametrize(("spec", "user", "host", "path",      "isnet"), [
+    ("user@host:path", "user",            "host", "path",      True),
+    ("host:path",      getpass.getuser(), "host", "path",      True),
+    ("user@host",      None,              None,   "user@host", False),
+    ("path",           None,              None,   "path",      False),
 ])
 def test_parse_net_spec(spec, user, host, path, isnet):
-    assert (user, host, path) == splitcpy.splitcpy.parse_net_spec(spec)
+    params = splitcpy.splitcpy.parse_net_spec(spec)
+    assert params.user == user
+    assert params.host == host
+    assert params.path == path
+
     assert isnet == splitcpy.splitcpy.is_net_spec(spec)
