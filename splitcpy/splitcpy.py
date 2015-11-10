@@ -162,7 +162,7 @@ def dl_file(src, dest, num_slices, bytes, pw, port):
         procs.append(Process(target=dl_slice,
                      args=(src, num_slices, n, bytes, qs[n], pw, port)))
         procs[n].start()
-        time.sleep(0.1)
+        time.sleep(0.025)
 
     try:
         with open(dest, 'wb') as dfp:
