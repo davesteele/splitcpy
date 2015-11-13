@@ -31,6 +31,7 @@ import time
 import tempfile
 import glob
 import json
+import itertools
 
 from collections import namedtuple
 from distutils.version import LooseVersion
@@ -154,30 +155,27 @@ def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
 def dl_file(src, dest, num_slices, bytes, pw, port):
     """Perform a parallel download of a file"""
 
-    qs = []
-    procs = []
-
-    for n in range(num_slices):
-        qs.append(Queue(10))
-        procs.append(Process(target=dl_slice,
-                     args=(src, num_slices, n, bytes, qs[n], pw, port)))
-        procs[n].start()
-        time.sleep(0.025)
+    slist = []
+    Slice = namedtuple("Slice", "queue, proc")
 
     try:
-        with open(dest, 'wb') as dfp:
-            done = False
-            while not done:
-                for i in range(num_slices):
-                    buf = qs[i].get()
-                    if buf is None:
-                        done = True
-                    else:
-                        dfp.write(buf)
-    finally:
-        [p.terminate() for p in procs if p.is_alive()]
+        for n in range(num_slices):
+            q = Queue(10)
+            p = Process(target=dl_slice,
+                        args=(src, num_slices, n, bytes, q, pw, port)
+            )
+            slist.append(Slice(q, p))
+            p.start()
+            time.sleep(0.025)
 
-    [p.join() for p in procs]
+        with open(dest, 'wb') as dfp:
+            buf_iter = (s.queue.get() for s in itertools.cycle(slist))
+            for buf in itertools.takewhile(lambda x: x is not None, buf_iter):
+                dfp.write(buf)
+    finally:
+        [s.proc.terminate() for s in slist if s.proc.is_alive()]
+
+    [s.proc.join() for s in slist]
 
 
 class CredException(Exception):
