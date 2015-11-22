@@ -1,9 +1,9 @@
-Origin: cloudprint
-Label: cloudprint
+Origin: splitcpy
+Label: splitcpy
 Codename: splitcpyppa
 Architectures: amd64 i386 armhf armel
 Components: main
-Description: Apt repository for project cloudprint
+Description: Apt repository for project splitcpy
 #DebOverride: override.squeeze
 #DscOverride: override.squeeze
 SignWith: default
