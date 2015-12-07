@@ -59,7 +59,7 @@ def test_that_last_line():
 def testdir(request):
     dir = tempfile.mkdtemp()
 
-    request.addfinalizer(lambda : shutil.rmtree(dir))
+    request.addfinalizer(lambda: shutil.rmtree(dir))
 
     return dir
 
