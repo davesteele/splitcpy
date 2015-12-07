@@ -182,10 +182,16 @@ class CredException(Exception):
     pass
 
 
+def quote_path(file):
+    for char in '#;&"\',?$ *[]':
+        file = re.sub("\\" + char, "\\" + char, file)
+
+    return file
+
 def establish_ssh_cred(user, host, port, pathlist):
     """Make a test ssh connection to determine the password, if needed"""
 
-    quotedlist = ['"' + x + '"' for x in pathlist]
+    quotedlist = [quote_path(x) for x in pathlist]
     remote_cmd = "splitcpy -f " + " ".join(quotedlist)
     cmd = "ssh -p %d %s@%s " % (port, user, host)
     cmd += remote_cmd
