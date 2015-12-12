@@ -8,9 +8,10 @@ Build-Depends: debhelper (>= 9),
                 python-setuptools,
                 python3-all,
                 python3-setuptools,
-		python-pexpect,
-		python3-pexpect,
+                python-pexpect,
+                python3-pexpect,
                 help2man,
+Testsuite: autopkgtest
 X-Python-Version: >= 2.6
 X-Python3-Version: >= 3.2
 Standards-Version: 3.9.6
@@ -20,8 +21,9 @@ Vcs-Browser: https://github.com/davesteele/splitcpy
 
 Package: splitcpy
 Architecture: all
-Depends: ${misc:Depends}, python3, python (>= 2.7), python-pexpect, python3-pexpect,
-         sshpass, python-pkg-resources, python3-pkg-resources,
+Depends: ${misc:Depends}, python3-all, python (>= 2.7), python-pexpect,
+         python3-pexpect, sshpass, python-pkg-resources,
+         python3-pkg-resources,
 Description: Copy a remote file using multiple SSH streams
  splitcpy can be used to exchange files with remote systems over multiple
  parallel SSH sessions. This can circumvent bandwidth restrictions

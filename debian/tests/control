@@ -1,0 +1,4 @@
+Tests: base, runtest2, runtest3
+Depends: python-pytest, python-mock,
+         python-pexpect, python3-all, python3-pexpect, python3-mock,
+         python3-pytest
