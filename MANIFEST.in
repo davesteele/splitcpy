@@ -2,3 +2,4 @@ exclude .tox
 exclude .coverage
 exclude htmlcov
 include README.md
+include conftest.py
