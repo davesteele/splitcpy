@@ -1,15 +1,10 @@
 #!/usr/bin/make -f
 #export DH_VERBOSE = 1
 
-include /usr/share/dpkg/pkg-info.mk
+export PYBUILD_NAME=splitcpy
 
 PKD = $(word 1,$(abspath $(dir $(MAKEFILE_LIST))))
 PKG = $(shell dpkg-parsechangelog -l$(PKD)/changelog --show-field=Source)
-
-PYTHON2_VERSIONS = $(shell pyversions -r)
-PYTHON3_VERSIONS = python3
-py3sdo = set -e; $(foreach py, $(PYTHON3_VERSIONS), $(py) $(1);)
-pyalldo = set -e; $(foreach py, $(PYTHON2_VERSIONS) $(PYTHON3_VERSIONS), $(py) $(1);)
 
 DEBIAN_VERSION = $(shell (dpkg-parsechangelog -l$(PKD)/changelog| grep Version | \
                  sed 's/Version..//' | sed 's/-.\+//'))
@@ -17,25 +12,16 @@ PRODUCT_VERSION = $(shell (grep version splitcpy/version.py | sed 's/.\+\"\(.\+\
 VER ?= $(DEBIAN_VERSION)
 
 %:
-	dh $@ --with python2,python3
+	dh $@ --with python2,python3 --buildsystem=pybuild
 
 override_dh_auto_build:
 	if [ ${DEBIAN_VERSION} != ${PRODUCT_VERSION} ] ; then exit 1 ; fi
 	dh_auto_build
-	$(call py3sdo, setup.py build)
 	help2man -N --no-discard-stderr splitcpy/splitcpy.py >debian/splitcpy.1 \
         -n "Copy a file in parallel over multiple SSH streams" \
         --version-string=${DEBIAN_VERSION}
 	sed -i 's/SPLITCPY.PY/SPLITCPY/g' debian/splitcpy.1
 	sed -i 's/splitcpy.py/splitcpy/g' debian/splitcpy.1
-
-override_dh_auto_install:
-	# whichever called last, will result in shebang update
-	# in this case, the scripts will end up with python3 shebang
-	# reverse the order if you want to continue using python2 shebang
-	dh_auto_install
-	$(call py3sdo, setup.py install --root=$(CURDIR)/debian/$(DEB_SOURCE) --install-layout=deb)
-	rm -rf debian/splitcpy/usr/lib/python3/dist-packages/splitcpy/__pycache__ || /bin/true
 
 override_dh_auto_clean:
 	dh_auto_clean
