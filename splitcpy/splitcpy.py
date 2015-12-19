@@ -36,6 +36,13 @@ import itertools
 from collections import namedtuple
 from distutils.version import LooseVersion
 
+import locale
+import gettext
+
+locale.setlocale(locale.LC_ALL, '')
+gettext.textdomain('splitcpy')
+_ = gettext.gettext
+
 
 """
 Copy file over split multiple SSH streams
@@ -252,11 +259,12 @@ def parse_args(args):
                 usage="%(prog)s -h\n"
                       "       %(prog)s [options] [user]@host:path [path]\n"
                       "       %(prog)s [options] [user]@host:path [...] [dir]",
-                description='Copy a remote file using multiple SSH streams.',
-                epilog="The source file is remote. " +
+                description=
+                      _('Copy a remote file using multiple SSH streams.'),
+                epilog=_("The source file is remote. "
                        "Remote files are specified as e.g. [user@]host:path. "
                        "'splitcpy' must be installed on both the local and "
-                       "remote hosts.",
+                       "remote hosts."),
             )
 
     parser.add_argument(
@@ -269,26 +277,26 @@ def parse_args(args):
     parser.add_argument(
         'path',
         nargs='?',
-        help="filename, with optional path",
+        help=_("filename, with optional path"),
         )
 
     parser.add_argument(
         'dir',
         nargs='?',
-        help="directory name (file name taken from source path)",
+        help=_("directory name (file name taken from source path)"),
         )
 
     parser.add_argument(
         '-s',
         metavar='n,i,l',
-        help="(internal use only) Generate file interleave of 'l'\
-        bytes for the 'i'th slice out of 'n'",
+        help=_("(internal use only) Generate file interleave of 'l' "
+               "bytes for the 'i'th slice out of 'n'"),
         )
 
     parser.add_argument(
         '-f',
         action='store_true',
-        help="(internal use only) Output far-side wildcard information",
+        help=_("(internal use only) Output far-side wildcard information"),
         )
 
     parser.add_argument(
@@ -297,7 +305,7 @@ def parse_args(args):
         dest='port',
         type=int,
         default=22,
-        help='ssh port to use (if not the default)',
+        help=_('ssh port to use (if not the default)'),
         )
 
     parser.add_argument(
@@ -306,7 +314,7 @@ def parse_args(args):
         dest='num_slices',
         type=int,
         default=10,
-        help='number of parallel slices to run (default=10)'
+        help=_('number of parallel slices to run (default=10)'),
         )
 
     parser.add_argument(
@@ -315,7 +323,7 @@ def parse_args(args):
         dest='slice_size',
         type=int,
         default=10000,
-        help="chunk size for slices (default=10,000)"
+        help=_("chunk size for slices (default=10,000)"),
         )
 
     args = parser.parse_args(args)
@@ -343,17 +351,17 @@ def validate_args(args):
             assert(args.num_slices > 0)
             assert(args.num_slices > args.slice)
         except (IndexError, ValueError, AssertionError):
-            return "Invalid interleave argument"
+            return _("Invalid interleave argument")
 
     elif args.f:
         pass
 
     else:
         if len(args.fileargs) == 0:
-            return "No files specified"
+            return _("No files specified")
 
         if not is_net_spec(args.fileargs[0]):
-            return "Currently only supports download copying"
+            return _("Currently only supports download copying")
 
         proclist = list(args.fileargs)
         args.rawsrcs = []
@@ -366,13 +374,13 @@ def validate_args(args):
         elif len(proclist) == 1:
             args.rawdest = proclist[0]
         else:
-            return "Malformed argument list"
+            return _("Malformed argument list")
 
         first_ns = parse_net_spec(args.rawsrcs[0])
         for src in args.rawsrcs:
             src_ns = parse_net_spec(src)
             if first_ns.user != src_ns.user or first_ns.host != src_ns.host:
-                return "The user and host must be the same for all files"
+                return _("The user and host must be the same for all files")
 
     return None
 
@@ -403,11 +411,11 @@ def main(args=sys.argv[1:]):
 
             remote_ver = remote_info['version']
             if LooseVersion(remote_ver) < LooseVersion(__VER_DL_MIN__):
-                print("Remote splitcpy is too old")
+                print(_("Remote splitcpy is too old"))
                 sys.exit(1)
 
             if LooseVersion(remote_ver) > LooseVersion(__VER_DL_MAX__):
-                print("Remote splitcpy is too new - upgrade local copy")
+                print(_("Remote splitcpy is too new - upgrade local copy"))
                 sys.exit(1)
 
             for src in remote_info['entries']:
@@ -422,7 +430,7 @@ def main(args=sys.argv[1:]):
                       args.slice_size, password, args.port)
 
         except CredException:
-            print("Error establishing contact with remote splitcpy")
+            print(_("Error establishing contact with remote splitcpy"))
             sys.exit(-1)
 
 
