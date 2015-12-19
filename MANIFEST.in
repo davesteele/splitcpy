@@ -3,3 +3,4 @@ exclude .coverage
 exclude htmlcov
 include README.md
 include conftest.py
+include po/*
