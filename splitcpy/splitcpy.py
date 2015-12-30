@@ -208,13 +208,14 @@ def establish_ssh_cred(user, host, port, pathlist):
     while True:
         options = [
             'password: ', '}', pexpect.EOF, pexpect.TIMEOUT,
-            'fingerprint',
+            # 'password: ' matches the password prompt from sshd
+            'fingerprint', _('password: '),
         ]
 
         match = session.expect(options)
 
-        if match == 0:
-            password = getpass.getpass(session.before.decode() + 'password:')
+        if match == 0 or match == 5:
+            password = getpass.getpass(session.before.decode() + _('password: '))
             session.sendline(password)
         elif match == 1:
             # get the json in the ouput
