@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-__version__ = "1.0"
+__version__ = "1.1"
 
 
 __VER_DL_MIN__ = "1.0"
