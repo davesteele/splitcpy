@@ -1,4 +1,4 @@
 
-from .splitcpy import main
+from splitcpy import main
 
 main()
