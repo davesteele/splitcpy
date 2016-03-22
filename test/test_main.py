@@ -19,7 +19,7 @@ def test_main_local_dl(dl_file, cred):
     splitcpy.splitcpy.main(cmd.split())
 
     assert dl_file.called
-    dl_file.assert_called_with('user@host:remotefile',
+    dl_file.assert_called_with('user@host:f1',
                                'localfile', 5, 20, None, 22)
     assert cred.called
     cred.assert_called_with('user', 'host', 22, ['remotefile'])
@@ -72,7 +72,7 @@ def test_dest_dir(dl_file, cred, testdir):
     cmd = "-n 5 -b 20 user@host:remotefile " + testdir
     splitcpy.splitcpy.main(cmd.split())
 
-    dl_file.assert_called_with('user@host:remotefile',
+    dl_file.assert_called_with('user@host:f1',
                                os.path.join(testdir, 'f1'),
                                5, 20, None, 22)
 
