@@ -85,6 +85,9 @@ def is_net_spec(spec):
     return parse_net_spec(spec).user is not None
 
 
+def make_net_spec(user, host, path):
+    return "{0}@{1}:{2}".format(user, host, path)
+
 def slice_iter(fp, num_slices, slice_num, bytes):
     """Iterator returning packets of an interleaved slice of a file"""
     fp.seek(slice_num*bytes, 0)
@@ -427,7 +430,8 @@ def main(args=sys.argv[1:]):
                 if os.path.isdir(dest):
                     dest = os.path.join(dest, os.path.basename(path))
 
-                dl_file(args.rawsrcs[0], dest, args.num_slices,
+                srcspec = make_net_spec(ns.user, ns.host, path)
+                dl_file(srcspec, dest, args.num_slices,
                       args.slice_size, password, args.port)
 
         except CredException:
