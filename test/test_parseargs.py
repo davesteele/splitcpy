@@ -57,3 +57,8 @@ def test_parse_net_spec(spec, user, host, path, isnet):
     assert params == (user, host, path)
 
     assert isnet == splitcpy.splitcpy.is_net_spec(spec)
+
+
+def test_parse_make_net_spec():
+    assert splitcpy.splitcpy.make_net_spec('a', 'b', 'c') == "a@b:c"
+    
