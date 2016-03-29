@@ -17,8 +17,8 @@ being accessed that require an ssh password.
 ## Usage
 
     $ splitcpy.py -h
-    usage: splitcpy.py [user]@host:path [path]
-           splitcpy.py [user]@host:path [...] [dir]
+    usage: splitcpy.py [user@]host:path [path]
+           splitcpy.py [user@]host:path [...] [dir]
     
     Copy a remote file using multiple SSH streams.
     
