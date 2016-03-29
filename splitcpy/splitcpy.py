@@ -261,8 +261,8 @@ def parse_args(args):
     """Return an argparse args object"""
     parser = argparse.ArgumentParser(
                 usage="%(prog)s -h\n"
-                      "       %(prog)s [options] [user]@host:path [path]\n"
-                      "       %(prog)s [options] [user]@host:path [...] [dir]",
+                      "       %(prog)s [options] [user@]host:path [path]\n"
+                      "       %(prog)s [options] [user@]host:path [...] [dir]",
                 description=
                       _('Copy a remote file using multiple SSH streams.'),
                 epilog=_("The source file is remote. "
