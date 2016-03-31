@@ -195,6 +195,8 @@ class CredException(Exception):
 def quote_path(file):
     for char in '#;&"\',?$ *[]':
         file = re.sub("\\" + char, "\\" + char, file)
+        if char in '?*':
+            file = re.sub("\\" + char, "\\" + char, file)
 
     return file
 
