@@ -46,17 +46,17 @@ def test_dirnames(tstfile, external, wildcard):
 
 
 @pytest.mark.parametrize('test, result', (
-    ('a*b', 'a\*b'),
+    ('a*b', 'a\\*b'),
     ('a b', 'a\ b'),
     ('a]b', 'a\]b'),
     ('a#b', 'a\#b'),
     ('a;b', 'a\;b'),
     ('a&b', 'a\&b'),
     ('a,b', 'a\,b'),
-    ('a?b', 'a\?b'),
+    ('a?b', 'a\\?b'),
     ('a$b', 'a\$b'),
 
-    ('a**b', 'a\*\*b'),
+    ('a**b', 'a\\*\\*b'),
     ('a*b*', 'a\*b\*'),
 ))
 def test_quote_path(test, result):
