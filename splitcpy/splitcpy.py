@@ -130,7 +130,7 @@ def dl_slice(src_spec, num_slices, slice, bytes, queue, pw, port):
     try:
         fifo_path = make_fifo()
 
-        spltcmd = "splitcpy %s -s %d,%d,%d" % (ns.path, num_slices,
+        spltcmd = "splitcpy \\'%s\\' -s %d,%d,%d" % (ns.path, num_slices,
                                                slice, bytes)
         sshcmd = "ssh -p %d %s@%s %s >%s" % (port, ns.user, ns.host, spltcmd,
                                              fifo_path)
